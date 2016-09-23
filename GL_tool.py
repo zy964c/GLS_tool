@@ -316,6 +316,8 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer):
             selection1.PasteSpecial('CATPrtResultWithOutLink')
             carm_part.Update()
             selection1.Clear()
+
+    ref1.remove_component()
     #else:
         #return None
           
