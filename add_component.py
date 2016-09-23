@@ -20,7 +20,7 @@ class Ref(object):
     CATIA = win32com.client.Dispatch('catia.application')
     oFileSys = CATIA.FileSystem
     work_path = os.getcwd()
-    work_path_lib = work_path + '\LIBRARY_SHORT'
+    work_path_lib = work_path + '\LIBRARY'
     #work_path_lib = work_path.replace('add_component.py', 'LIBRARY')
     print work_path_lib
 
@@ -1213,55 +1213,7 @@ class Ref(object):
                         NewComponent.Name = str(number) + 'IN STA ' + sta_value(x_coord, plug_value) + ' ' + side + Arch
                         self.set_name(NewComponent.Name)
 
-                        RenamingTool = NewComponent.ReferenceProduct
-                        PlenumAssy = RenamingTool.Products.Item(1)
-                        LING_VAL = RenamingTool.Products.Item(2)
-                        if ligval_ammount == 2:
-                            LING_VAL2 = RenamingTool.Products.Item(3)
 
-                        if stowbin is True:
-                            Lower_Plenum1 = RenamingTool.Products.Item(3)
-                            Lower_Downer1 = RenamingTool.Products.Item(4)
-                            Lower_Downer2 = RenamingTool.Products.Item(5)
-                            Lower_Plenum1.name = 'CONST_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(x_coord, plug_value) + '_' + \
-                                                 side[0]
-                            Lower_Downer1.name = dow_type + '_STA' + sta_value(x_coord, plug_value) + '_' + side[0] + '1'
-                            Lower_Downer2.name = dow_type + '_STA' + sta_value(x_coord, plug_value) + '_' + side[0] + '2'
-
-                        elif stowbin == 'twenty_four':
-                            if ligval_ammount == 2:
-                                Lower_Plenum1 = RenamingTool.Products.Item(4)
-                                Lower_Downer1 = RenamingTool.Products.Item(5)
-                                Lower_Plenum1.name = 'CONST_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(x_coord,
-                                                                                                      plug_value) + '_' + side[
-                                    0]
-                                Lower_Downer1.name = dow_type + '_STA' + sta_value(x_coord, plug_value) + '_' + side[0]
-
-                            elif ligval_ammount == 1:
-                                Lower_Plenum1 = RenamingTool.Products.Item(3)
-                                Lower_Downer1 = RenamingTool.Products.Item(4)
-                                Lower_Plenum1.name = 'CONST_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(x_coord,
-                                                                                                      plug_value) + '_' + side[
-                                    0]
-                                Lower_Downer1.name = dow_type + '_STA' + sta_value(x_coord, plug_value) + '_' + side[0]
-
-                        PlenumAssy.name = str(number) + nozzl_type + 'NOZASSY_' + 'STA' + sta_value(x_coord, plug_value)\
-                              + '_' + side[0]
-                        if len(PlenumAssy.name) > 24:
-                            PlenumAssy.name = str(number) + nozzl_type + 'ASSY_' + 'STA' + sta_value(x_coord,
-                                                                                                     plug_value) + '_' + \
-                                              side[0]
-                        if ligval_ammount == 1:
-                            LING_VAL.name = 'OB_BIN_LIGVAL_STA' + sta_value(x_coord, plug_value) + '_' + side[0]
-                            if len(LING_VAL.name) > 24:
-                                LING_VAL.name = 'OB_LIGVAL_STA' + sta_value(x_coord, plug_value) + '_' + side[0]
-                        elif ligval_ammount == 2:
-                            LING_VAL.name = 'OB_BIN_LIGVAL_STA' + sta_value(x_coord, plug_value) + '_' + side[0] + '1'
-                            if len(LING_VAL.name) > 24:
-                                LING_VAL.name = 'OB_LIGVAL_STA' + sta_value(x_coord, plug_value) + '_' + side[0] + '1'
-                            LING_VAL2.name = 'OB_BIN_LIGVAL_STA' + sta_value(x_coord, plug_value) + '_' + side[0] + '2'
-                            if len(LING_VAL2.name) > 24:
-                                LING_VAL.name = 'OB_LIGVAL_STA' + sta_value(x_coord, plug_value) + '_' + side[0] + '2'
 
                     elif section == 'nonconstant' and side == 'LH' and location == 'nose':
 
@@ -1276,40 +1228,7 @@ class Ref(object):
                             (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))),
                             plug_value) + ' ' + side
                         self.set_name(Prod.Name)
-                        RenamingTool = NewComponent.ReferenceProduct
-                        PlenumAssy = RenamingTool.Products.Item(1)
-                        LING_VAL = RenamingTool.Products.Item(2)
 
-                        if stowbin is True:
-                            Lower_Plenum1 = RenamingTool.Products.Item(3)
-                            Lower_Downer1 = RenamingTool.Products.Item(4)
-                            Lower_Downer2 = RenamingTool.Products.Item(5)
-                            Lower_Plenum1.name = 'SEC41_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0]
-                            Lower_Downer1.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0] + '1'
-                            Lower_Downer2.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0] + '2'
-
-                        elif stowbin == 'twenty_four':
-                            Lower_Plenum1 = RenamingTool.Products.Item(3)
-                            Lower_Downer1 = RenamingTool.Products.Item(4)
-                            Lower_Plenum1.name = 'SEC41_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0]
-                            Lower_Downer1.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0]
-
-                        PlenumAssy.name = str(number) + nozzl_type + 'NOZASSY_' + 'STA' + sta_value(
-                            (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                          side[0]
-                        LING_VAL.name = 'OB_BIN_LIGVAL_STA' + sta_value(
-                            (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                        side[0]
                         NewComponent.Move.Apply(Rotate5)
 
                     elif section == 'nonconstant' and side == 'RH' and location == 'nose':
@@ -1325,40 +1244,7 @@ class Ref(object):
                             (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))),
                             plug_value) + ' ' + side
                         self.set_name(Prod.Name)
-                        RenamingTool = NewComponent.ReferenceProduct
-                        PlenumAssy = RenamingTool.Products.Item(1)
-                        LING_VAL = RenamingTool.Products.Item(2)
 
-                        if stowbin is True:
-                            Lower_Plenum1 = RenamingTool.Products.Item(3)
-                            Lower_Downer1 = RenamingTool.Products.Item(4)
-                            Lower_Downer2 = RenamingTool.Products.Item(5)
-                            Lower_Plenum1.name = 'SEC41_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0]
-                            Lower_Downer1.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0] + '1'
-                            Lower_Downer2.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0] + '2'
-
-                        elif stowbin == 'twenty_four':
-                            Lower_Plenum1 = RenamingTool.Products.Item(3)
-                            Lower_Downer1 = RenamingTool.Products.Item(4)
-                            Lower_Plenum1.name = 'SEC41_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0]
-                            Lower_Downer1.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                                 side[0]
-
-                        PlenumAssy.name = str(number) + nozzl_type + 'NOZASSY_' + 'STA' + sta_value(
-                            (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                          side[0]
-                        LING_VAL.name = 'OB_BIN_LIGVAL_STA' + sta_value(
-                            (fake_coord_nonconstant_41 + x_coord_nonconstant - inch_to_mm(int(number))), plug_value) + '_' + \
-                                        side[0]
                         NewComponent.Move.Apply(Rotate185)
 
                     elif section == 'nonconstant' and side == 'LH' and location == 'tail':
@@ -1373,36 +1259,7 @@ class Ref(object):
                         Prod.Name = str(number) + 'IN STA ' + sta_value((fake_coord_nonconstant_47 + x_coord_nonconstant),
                                                                         plug_value) + ' ' + side
                         self.set_name(Prod.Name)
-                        RenamingTool = NewComponent.ReferenceProduct
-                        PlenumAssy = RenamingTool.Products.Item(1)
-                        Felt = RenamingTool.Products.Item(2)
 
-                        if stowbin is True:
-                            Lower_Plenum1 = RenamingTool.Products.Item(3)
-                            Lower_Downer1 = RenamingTool.Products.Item(4)
-                            Lower_Downer2 = RenamingTool.Products.Item(5)
-                            Lower_Plenum1.name = 'CONST_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant), plug_value) + '_' + side[0]
-                            Lower_Downer1.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant),
-                                plug_value) + '_' + side[0] + '1'
-                            Lower_Downer2.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant),
-                                plug_value) + '_' + side[0] + '2'
-
-                        elif stowbin == 'twenty_four':
-                            Lower_Plenum1 = RenamingTool.Products.Item(3)
-                            Lower_Downer1 = RenamingTool.Products.Item(4)
-                            Lower_Plenum1.name = 'CONST_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant), plug_value) + '_' + side[0]
-                            Lower_Downer1.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant),
-                                plug_value) + '_' + side[0]
-
-                        PlenumAssy.name = str(number) + nozzl_type + 'NOZASSY_' + 'STA' + sta_value(
-                            (fake_coord_nonconstant_47 + x_coord_nonconstant), plug_value) + '_' + side[0]
-                        Felt.name = 'UPR_FELT_' + str(number) + 'IN_STA' + sta_value(
-                            (fake_coord_nonconstant_47 + x_coord_nonconstant), plug_value) + '_' + side[0]
                         NewComponent.Move.Apply(Rotate_5)
 
                     elif section == 'nonconstant' and side == 'RH' and location == 'tail':
@@ -1417,36 +1274,7 @@ class Ref(object):
                         Prod.Name = str(number) + 'IN STA ' + sta_value((fake_coord_nonconstant_47 + x_coord_nonconstant),
                                                                         plug_value) + ' ' + side
                         self.set_name(Prod.Name)
-                        RenamingTool = NewComponent.ReferenceProduct
-                        PlenumAssy = RenamingTool.Products.Item(1)
-                        Felt = RenamingTool.Products.Item(2)
 
-                        if stowbin is True:
-                            Lower_Plenum1 = RenamingTool.Products.Item(3)
-                            Lower_Downer1 = RenamingTool.Products.Item(4)
-                            Lower_Downer2 = RenamingTool.Products.Item(5)
-                            Lower_Plenum1.name = 'CONST_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant), plug_value) + '_' + side[0]
-                            Lower_Downer1.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant),
-                                plug_value) + '_' + side[0] + '1'
-                            Lower_Downer2.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant),
-                                plug_value) + '_' + side[0] + '2'
-
-                        elif stowbin == 'twenty_four':
-                            Lower_Plenum1 = RenamingTool.Products.Item(3)
-                            Lower_Downer1 = RenamingTool.Products.Item(4)
-                            Lower_Plenum1.name = 'CONST_' + L_PL_size1 + 'LWPLEN_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant), plug_value) + '_' + side[0]
-                            Lower_Downer1.name = dow_type + '_STA' + sta_value(
-                                (fake_coord_nonconstant_47 + x_coord_nonconstant),
-                                plug_value) + '_' + side[0]
-
-                        PlenumAssy.name = str(number) + nozzl_type + 'NOZASSY_' + 'STA' + sta_value(
-                            (fake_coord_nonconstant_47 + x_coord_nonconstant), plug_value) + '_' + side[0]
-                        Felt.name = 'UPR_FELT_' + str(number) + 'IN_STA' + sta_value(
-                            (fake_coord_nonconstant_47 + x_coord_nonconstant), plug_value) + '_' + side[0]
                         NewComponent.Move.Apply(Rotate_185)
 
 
