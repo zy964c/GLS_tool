@@ -408,15 +408,13 @@ def rename_part_body(carm_pn):
         st_notes = hyb_bodies.Item('Standard Notes:')
         carm_part.InWorkObject = st_notes
             
-            
-
 
 # adding GUI
 class Application(tk.Frame):             
         def __init__(self, root):
             tk.Frame.__init__(self, root)
             #root.geometry("400x550")
-            root.title("GLA")
+            root.title("GLS")
             
 #            self.f1 = tk.Frame(bd=3, relief='ridge')
             self.parent_frame = tk.Frame(bd=3, relief='ridge')
