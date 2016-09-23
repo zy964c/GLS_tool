@@ -74,8 +74,6 @@ class Ref(object):
         global ICM_Sec47_RH_Products
         ICM_Sec47_RH_Products = new_component4.Products
 
-#C:\Temp\zy964c\LIBRARY_NOGEOM_ICM2
-#V:\SYSTEM_Int\personal_folder\Godov\LIBRARY_NOGEOM_ICM2'
     def __init__(self, customer, sta_to_find, side_to_find, path=work_path_lib, plug=240, name=None):
         self.plug = plug
         self.path = path
@@ -2814,15 +2812,46 @@ class Ref(object):
             result = Ref.add_component_coord(self, s6, 'RH', 'nonconstant', 'tail', self.plug, target)
             if result is not None:
                 return result
+
+    def remove_component(self):
+
+        ICM = Ref.CATIA.ActiveDocument
+        ICM_1 = ICM.Product
+        ICM_Products = ICM_1.Products
+        try:
+            ICM_Products.Remove(self.name)
+            return 0
+        except:
+            pass
+        non_const_prods = ['non-constant_41_LH.1', 'non-constant_41_RH.1', 'non-constant_47_LH.1', 'non-constant_47_RH.1']
+        for i in non_const_prods:
+            prod = ICM_Products.Item(i)
+            prods = prod.Products
+            try:
+                prods.Remove(self.name)
+                break
+            except:
+                continue
             
 
 if __name__ == "__main__":
 
-    ecs = Ref('787_9_JAL_ZB424', '1707', 'RH')
+    ecs = Ref('787_9_KAL_ZB656', '0561', 'LH')
+    ecs1 = Ref('787_9_KAL_ZB656', '0345', 'LH')
+    ecs2 = Ref('787_9_KAL_ZB656', '1623', 'LH')
     ecs.build()
+    ecs1.build()
+    ecs2.build()
+    #print ecs.name
+    ecs.remove_component()
+    ecs1.remove_component()
+    ecs2.remove_component()
     #name = ecs.get_ref_name()
     #print name
-    print ecs.get_name()
+    print ecs.name
+    print ecs1.name
+    print ecs2.name
+
 #    bins = []
 #    ecs = Ref('BRI', '0345', 'LH')
 #    ecs1 = Ref('BRI', '0345', 'RH')
