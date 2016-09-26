@@ -24,6 +24,7 @@ selection1 = productDocument1.Selection
 selection2 = productDocument1.Selection
 documents = catia.Documents
 
+
 def return_part(prdct_id, part_id):
     """
     find detail in tree
@@ -123,7 +124,7 @@ def create_point_fl(part_name1, carm_pn, part_pn):
                 point_added.Name = keys_js[key]
                 if point_added.Name == 'FL10' or point_added.Name == '804Z3000-211':
                     pos = json_lookup_origin(part_name1)
-                    coords = slice(9,12)
+                    coords = slice(9, 12)
                     wl = 275.0 * 25.4
                     s47_sta = (1617.0 + 240.0) * 25.4
                     if pos[coords][2] > wl:
@@ -170,7 +171,7 @@ def create_point_sta(carm_pn, omf1, instance_id, carm_name, brkt_disc_name):
     points.extend((sta, mounting_feature, alignment_feature, ringpost1,
                    ringpost2, bushing1, bushing2))
     for i in range(len(points)):
-        if points[i] != None:
+        if points[i] is not None:
             point_added = HybridShapeFactory1.AddNewPointCoord(points[i][0],
                                                                points[i][1],
                                                                points[i][2])
@@ -195,7 +196,8 @@ def create_point_sta(carm_pn, omf1, instance_id, carm_name, brkt_disc_name):
                     hybridBody2.AppendHybridShape(point_added)
                     point_added.Name = names[i]
         current_part.Update()
-    
+
+
 def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn):
     
     points_js = json_lookup_components(part_pn)
@@ -320,7 +322,6 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer):
     ref1.remove_component()
     #else:
         #return None
-          
 
 
 def deleter():
@@ -575,8 +576,6 @@ class Application(tk.Frame):
                         sta = '0' + sta
                     input_config.append([sta, size])
 
-            
-                
             #root.destroy()
                 
             print customer
