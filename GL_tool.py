@@ -259,9 +259,9 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn):
         return None
 
 
-def reference(size, instance_id1, part_name1, sta1, side1, customer):
+def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value):
     
-    ref1 = Ref(customer, sta1, side1)
+    ref1 = Ref(customer, sta1, side1, plug_value)
     ref1.build()
     #print ref1.name
     #if ref1.name is not None:
@@ -455,9 +455,9 @@ class Application(tk.Frame):
             self.size4 = tk.IntVar()
             self.size5 = tk.IntVar()
             self.size6 = tk.IntVar()
-            self.minor = tk.IntVar()
+            self.plug = tk.IntVar()
 
-            self.minor.set(240)
+            self.plug.set(240)
             self.size1.set(0)
             self.size2.set(0)
             self.size3.set(0)
@@ -485,7 +485,7 @@ class Application(tk.Frame):
 #            cb.current(1)
 #            cb.pack()
 
-            tk.Radiobutton(self.f0, text="787-9", font=('Helvetica', 12), variable=self.minor, value=240).pack(side='left', padx=5, pady=5)
+            tk.Radiobutton(self.f0, text="787-9", font=('Helvetica', 12), variable=self.plug, value=240).pack(side='left', padx=5, pady=5)
             tk.Label(self.f1, text="CUSTOMER:", font=('Helvetica', 14)).pack(side='left', padx=5)
             tk.Label(self.f2, text="STA", font=('Helvetica', 14)).pack(side='left', padx=15, pady=5)
             tk.Label(self.f2, text="BIN SIZE",  font=('Helvetica', 14)).pack(side='left', padx=10, pady=5)
@@ -509,7 +509,7 @@ class Application(tk.Frame):
             apply(tk.OptionMenu, (self.f7, self.size5) + tuple(bin_sizes)).pack(side='left', padx=10, pady=5)
             apply(tk.OptionMenu, (self.f8, self.size6) + tuple(bin_sizes)).pack(side='left', padx=10, pady=5)
             apply(tk.OptionMenu, (self.f1, self.cus) + tuple(customers)).pack(side='left', padx=5, pady=0)
-            tk.Radiobutton(self.f0, text="787-10", font=('Helvetica', 12), variable=self.minor, value=456).pack(side='left', padx=5, pady=5)
+            tk.Radiobutton(self.f0, text="787-10", font=('Helvetica', 12), variable=self.plug, value=456).pack(side='left', padx=5, pady=5)
             tk.Button(self.f9, text="SUBMIT", command=self.start,  font=('Helvetica', 14)).pack()
         # need to run progressbar in another thread    
 #        def progress_start(self):
@@ -526,7 +526,7 @@ class Application(tk.Frame):
             
         def start(self):
 
-            plug_value = self.minor
+            plug_value = self.plug.get()
             input_config = []
             
             size1_value = self.size1.get()
@@ -631,11 +631,11 @@ class Application(tk.Frame):
                                        ringposts[part_pn])       
                 create_point(part_name, instance_id, carm_name, pn, part_pn)
                 create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn)
-                create_point_fl(part_name, pn, part_pn, self.minor)
+                create_point_fl(part_name, pn, part_pn, plug_value)
         
             for fairing in input_config:
-                reference(fairing[1], instance_id, carm_name, fairing[0], side, customer)
-                omf = Ref(customer, fairing[0], side)
+                reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value)
+                omf = Ref(customer, fairing[0], side, plug_value)
                 create_point_sta(pn, omf, instance_id, carm_name, brkt_disc_name)
             start_script_local('GetPointCoordinates', 1)
             add_jd_annotation(pn, input_config[0][0], 31, instance_id)

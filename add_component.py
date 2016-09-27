@@ -21,7 +21,6 @@ class Ref(object):
     oFileSys = CATIA.FileSystem
     work_path = os.getcwd()
     work_path_lib = work_path + '\LIBRARY'
-    #work_path_lib = work_path.replace('add_component.py', 'LIBRARY')
     print work_path_lib
 
     @staticmethod
@@ -74,7 +73,7 @@ class Ref(object):
         global ICM_Sec47_RH_Products
         ICM_Sec47_RH_Products = new_component4.Products
 
-    def __init__(self, customer, sta_to_find, side_to_find, path=work_path_lib, plug=240, name=None):
+    def __init__(self, customer, sta_to_find, side_to_find, plug, path=work_path_lib, name=None):
         self.plug = plug
         self.path = path
         self.customer = customer
