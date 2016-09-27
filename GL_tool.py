@@ -398,7 +398,9 @@ def jd_del(carm_pn):
 
 
 def rename_part_body(carm_pn):
+
         """renames part body and activates it"""
+
         carm_doc = documents.Item(carm_pn + ".CATPart")
         carm_part = carm_doc.Part
         bodies = carm_part.Bodies
@@ -410,14 +412,12 @@ def rename_part_body(carm_pn):
         carm_part.InWorkObject = st_notes
             
 
-# adding GUI
 class Application(tk.Frame):             
         def __init__(self, root):
             tk.Frame.__init__(self, root)
             #root.geometry("400x550")
             root.title("GLS")
-            
-#            self.f1 = tk.Frame(bd=3, relief='ridge')
+
             self.parent_frame = tk.Frame(bd=3, relief='ridge')
             self.f0 = tk.Frame()
             self.f1 = tk.Frame()
@@ -470,12 +470,14 @@ class Application(tk.Frame):
 #            for item in bin_sizes:
 #                listbox.insert('end', item)
 
-            customers = []
-            customers_search = glob.glob('*ZB*.json')
-            if len(customers_search) > 0:
-                for entry in customers_search:
-                    entry_upd = entry.replace('.json', '')
-                    customers.append(entry_upd)
+            customers_search_json = glob.glob('*.json')
+            customers_search_txt = glob.glob('*.txt')
+            customers = customers_search_json + customers_search_txt
+
+            # if len(customers_search_json) > 0:
+            #     for entry in customers_search_json:
+            #         entry_upd = entry.replace('.json', '')
+            #         customers.append(entry_upd)
 
             bin_sizes = [0, 12, 18, 24, 30, 36, 42, 48, 54, 60, 72]
             
@@ -489,7 +491,6 @@ class Application(tk.Frame):
             tk.Label(self.f1, text="CUSTOMER:", font=('Helvetica', 14)).pack(side='left', padx=5)
             tk.Label(self.f2, text="STA", font=('Helvetica', 14)).pack(side='left', padx=15, pady=5)
             tk.Label(self.f2, text="BIN SIZE",  font=('Helvetica', 14)).pack(side='left', padx=10, pady=5)
-#            tk.Entry(self.f1, textvariable=self.cus, width=15).pack(side='left', padx=5)
             tk.Entry(self.f3, textvariable=self.sta1, width=10).pack(side='left',  padx=10, pady=5)
             tk.Label(self.f3, text="-", font=('Helvetica', 14)).pack(side='left', padx=5)
             tk.Entry(self.f4, textvariable=self.sta2, width=10).pack(side='left', padx=10, pady=5)
@@ -566,9 +567,10 @@ class Application(tk.Frame):
                 self.sta6.set(sta6_value)
                 
             root.update()
-            
-            customer_json = self.cus.get() + '.json'
-            customer_txt = parse_ss(customer_json)
+
+            customer_txt = self.cus.get()
+            if '.json' in customer_txt:
+                customer_txt = parse_ss(customer_txt, plug_value)
             customer = customer_txt.replace('.txt', '')
             
             sta_list = [sta1_value, sta2_value, sta3_value, sta4_value,
@@ -581,8 +583,6 @@ class Application(tk.Frame):
                     if sta[0] != '0' and sta[0] != '1':
                         sta = '0' + sta
                     input_config.append([sta, size])
-
-            #root.destroy()
                 
             print customer
             print input_config
@@ -640,7 +640,6 @@ class Application(tk.Frame):
             start_script_local('GetPointCoordinates', 1)
             add_jd_annotation(pn, input_config[0][0], 31, instance_id)
             access_captures(instance_id, 1)
-            #change_inst_id(pn, instance_id)
             start_script_local('GetFlagNoteCoordinates', 1)
             add_annotation(pn, input_config, instance_id)
             capture_del(pn, instance_id)
