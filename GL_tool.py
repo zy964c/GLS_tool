@@ -11,18 +11,10 @@ from start_script import start_script_local
 from camera import cameras
 # import ttk
 import Tkinter as tk
+import tkMessageBox
 from summarize import std_parts
 from json_parsing import parse_ss
 from functions import sta_value
-
-
-catia = win32com.client.Dispatch('catia.application')
-productDocument1 = catia.ActiveDocument
-Product = productDocument1.Product
-collection = Product.Products
-selection1 = productDocument1.Selection
-selection2 = productDocument1.Selection
-documents = catia.Documents
 
 
 def return_part(prdct_id, part_id):
@@ -677,7 +669,21 @@ if __name__ == "__main__":
 
     root = tk.Tk()
     root.resizable(0, 0)
-    #root.resizable(width=False, height=False)
     Application(root).pack()
-    root.mainloop()
+    try:
+        catia = win32com.client.Dispatch('catia.application')
+        productDocument1 = catia.ActiveDocument
+        Product = productDocument1.Product
+        collection = Product.Products
+        selection1 = productDocument1.Selection
+        selection2 = productDocument1.Selection
+        documents = catia.Documents
+    except:
+        tkMessageBox.showwarning(
+            "CATIA error",
+            "Make sure to have CATProduct opened in CATIA before running an application"
+        )
+        root.destroy()
+    else:
+        root.mainloop()
 
