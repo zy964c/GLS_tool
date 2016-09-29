@@ -49,9 +49,10 @@ def part_design(geom_elem):
     selection1.Clear()
 
 
-def create_point(part_name1, instance_id1, carm_name2, carm_pn, part_pn):
+def create_point(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_value):
     """
     create point and copy it
+    :param plug_value:
     """
 
     points_js = json_lookup(part_pn)
@@ -61,7 +62,7 @@ def create_point(part_name1, instance_id1, carm_name2, carm_pn, part_pn):
                 partDocument1 = documents.Item(i)
         current_part = partDocument1.Part
         HybridShapeFactory1 = current_part.HybridShapeFactory
-        hybridBody2 = jd_set(carm_name2, instance_id1, part_name1, part_pn)
+        hybridBody2 = jd_set(carm_name2, instance_id1, part_name1, part_pn, plug_value)
         make_axis(part_name1, carm_pn)
         axisSystems1 = current_part.AxisSystems
         axis = axisSystems1.Item(axisSystems1.Count)
@@ -146,7 +147,7 @@ def create_point_fl(part_name1, carm_pn, part_pn, minor):
         current_part.Update()
         
 
-def create_point_sta(carm_pn, omf1, instance_id, carm_name, brkt_disc_name):
+def create_point_sta(carm_pn, omf1, instance_id, carm_name, brkt_disc_name, plug_value):
 
     for i in range(1, documents.Count + 1):
             if carm_pn in documents.Item(i).Name:
@@ -177,7 +178,7 @@ def create_point_sta(carm_pn, omf1, instance_id, carm_name, brkt_disc_name):
                                                                points[i][2])
             if hybridBody2 is not None:
                 if 'ringpost' in names[i] or 'bushing' in names[i]:
-                    hybrid_body_jd1 = jd_set(carm_name, instance_id, '', names[i])
+                    hybrid_body_jd1 = jd_set(carm_name, instance_id, '', names[i], plug_value)
                     points1 = hybrid_body_jd1.HybridShapes
                     if points1.Count > 0 and 'FIDV' in points1.Item(points1.Count).Name:
                         selection1.Add(points1.Item(points1.Count))
@@ -190,15 +191,14 @@ def create_point_sta(carm_pn, omf1, instance_id, carm_name, brkt_disc_name):
                                                       hybrid_body_jd1.Name +
                                                       '\\Hole Quantity')
                     param_hole_qty.Value = points1.Count
-                    create_jd_vectors2(brkt_disc_name, instance_id, carm_name, carm_pn,
-                                       names[i][:-1])
+                    create_jd_vectors2(brkt_disc_name, instance_id, carm_name, carm_pn, names[i][:-1], plug_value)
                 else:
                     hybridBody2.AppendHybridShape(point_added)
                     point_added.Name = names[i]
         current_part.Update()
 
 
-def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn):
+def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_value):
     
     points_js = json_lookup_components(part_pn)
     if points_js is not None:
@@ -207,7 +207,7 @@ def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn):
                 partDocument1 = documents.Item(i)
         current_part = partDocument1.Part
         HybridShapeFactory1 = current_part.HybridShapeFactory
-        hybridBody2 = jd_set(carm_name2, instance_id1, part_name1, part_pn)
+        hybridBody2 = jd_set(carm_name2, instance_id1, part_name1, part_pn, plug_value)
         if hybridBody2 is not None:
             hs = hybridBody2.HybridShapes
             try:
@@ -241,15 +241,16 @@ def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn):
         return None
     
     
-def jd_set(carm_name1, instance_id1, part_name1, part_pn):
+def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
     """
     returns jd geoset
+    :param plug_value:
     """
     part1 = return_part(instance_id1, carm_name1)
     hybridBodies1 = part1.HybridBodies
     hybridBody1 = hybridBodies1.Item('Joint Definitions')
     hybridBodies2 = hybridBody1.HybridBodies
-    joint = JD(part_pn, instance_id1, part_name1)
+    joint = JD(part_pn, instance_id1, part_name1, plug_value)
     jd_name = joint.get_name()
     print jd_name
     if jd_name is not None:
@@ -641,18 +642,16 @@ class Application(tk.Frame):
                 if part_pn == '836Z1510-1':
                     brkt_disc_name = part_name
                 if part_pn in ringposts:
-                    create_point(part_name, instance_id, carm_name, pn,
-                                 ringposts[part_pn])
-                    create_jd_vectors2(part_name, instance_id, carm_name, pn,
-                                       ringposts[part_pn])       
-                create_point(part_name, instance_id, carm_name, pn, part_pn)
-                create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn)
+                    create_point(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
+                    create_jd_vectors2(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
+                create_point(part_name, instance_id, carm_name, pn, part_pn, plug_value)
+                create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn, plug_value)
                 create_point_fl(part_name, pn, part_pn, plug_value)
         
             for fairing in input_config:
                 reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value)
                 omf = Ref(customer, fairing[0], side, plug_value)
-                create_point_sta(pn, omf, instance_id, carm_name, brkt_disc_name)
+                create_point_sta(pn, omf, instance_id, carm_name, brkt_disc_name, plug_value)
             start_script_local('GetPointCoordinates', 1)
             add_jd_annotation(pn, input_config[0][0], 31, instance_id)
             access_captures(instance_id, 1)

@@ -6,10 +6,11 @@ import win32com.client
 
 class JD(object):
 
-    def __init__(self, pn, irm_name, part_name):
+    def __init__(self, pn, irm_name, part_name, plug_value=240.0):
         self.pn = pn
         self.irm_name = irm_name
         self.part_name = part_name
+        self.plug_value = plug_value
 
     def __str__(self):
         return '({0.pn!s}, {0.irm_type!s})'.format(self)
@@ -80,13 +81,15 @@ class JD(object):
                 elif jd_set == '04':
                     if self.check_disconnect_brkt():
                         jd_set = '29'
+                elif jd_set == '03':
+                    if self.sidewall_light_bracket():
+                        jd_set = '22'
                 return jd_set                      
             else:
                 continue
 
         return None
-        
-        
+
     def get_slc_origins(self):
     
         catia = win32com.client.Dispatch('catia.application')
@@ -107,8 +110,7 @@ class JD(object):
             return x_slc
         else:
             return None
-            
-        
+
     def get_riser_origins(self):
         
         catia = win32com.client.Dispatch('catia.application')
@@ -129,11 +131,9 @@ class JD(object):
             return x_riser
         else:
             return None
-        
-        
+
     def check_riser(self):
-    
-        x_coord_latch_list = []
+
         x_coord_latch = json_lookup_origin(self.part_name)[-3]
         x_coord_latch_list = [x_coord_latch+(25.4*355.273),
                               x_coord_latch-(25.4*355.273)]
@@ -142,16 +142,12 @@ class JD(object):
         if riser_list is not None:
             for riser in riser_list:
                 for latch in x_coord_latch_list:
-                    #print math.ceil(riser*1)/1
-                    #print math.ceil(latch*1)/1
                     if (math.ceil(riser*1)/1) == (math.ceil(latch*1)/1):
                         return True
         return False
-            
-            
+
     def check_slc_light(self):
-    
-        x_coord_latch_list = []
+
         x_coord_latch = json_lookup_origin(self.part_name)[-3]
         x_coord_latch_list = [x_coord_latch, x_coord_latch+(25.4*42.0),
                               x_coord_latch-(25.4*42.0)]
@@ -164,17 +160,25 @@ class JD(object):
                     if (math.ceil(slc*1)/1) == (math.ceil(latch*1)/1):
                         return True
         return False
-        
-        
-    def check_disconnect_brkt(self):
+
+    def check_disconnect_brkt(self, plug_value):
         
         pos = json_lookup_origin(self.part_name)
         coords = slice(9,12)
         wl = 275.0 * 25.4
-        s47_sta = (1617.0 + 240.0) * 25.4
+        s47_sta = (1617.0 + plug_value) * 25.4
         if pos[coords][2] > wl:
             if pos[coords][0] > s47_sta:
                 return True
+        return False
+
+    def sidewall_light_bracket(self):
+
+        pos = json_lookup_origin(self.part_name)
+        coords = slice(9, 12)
+        s41_sta = 465.0 * 25.4
+        if pos[coords][0] < s41_sta:
+            return True
         return False
            
 #    def if_slc(self):

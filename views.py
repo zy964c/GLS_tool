@@ -87,10 +87,14 @@ class AnnotationFactory(object):
                        'JD 17': ['Inboard Facing Out - Lower Support', 'JD17 Single Wire Bushings Typical'],
                        'JD 19': ['Inboard Facing Out - Lower Support', 'JD19 Outboard Latch Typical'],
                        'JD 20': ['Inboard Facing Out - Lower Support', 'JD20 Outboard Latch to Risers'],
+                       # ADD TO SEED CARM:
+                       'JD 21': ['Inboard Facing Out - Lower Support', 'JD21 OFCR Outboard Latch Typical'],
                        'JD 24': ['Inboard Facing Out - Lower Support', 'JD24 Riser to Ceiling Lights'],
                        'JD 25': ['Inboard Facing Out - Lower Support', 'JD25 Outboard Latch To SLC Typical'],
                        'JD 26': ['Inboard Facing Out - Top Support', 'JD26 Outboard NOFAR Light Typical'],
                        'JD 27': ['Inboard Facing Out - Top Support', 'JD27 Power Supply Typical'],
+                       # ADD TO SEED CARM:
+                       'JD 29': ['Inboard Facing Out - Lower Support', 'JD29 1510-1 Bracket to Rail'],
                        'sta': ['Inboard Facing Out - Lower Support', 'Reference Geometry'],
                        '1X5005-412(XXX) Alignment Feature': ['FWD Facing AFT', 'JD01 Ceiling Light Typical'],
                        '1X5005-412(XXX) Mounting Feature': ['FWD Facing AFT', 'JD01 Ceiling Light Typical'],
