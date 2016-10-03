@@ -1,6 +1,7 @@
 import win32com.client
 from json_lookup import json_lookup_origin
 
+
 def make_axis(instance_id, carm_pn):
 
     catia = win32com.client.Dispatch('catia.application')

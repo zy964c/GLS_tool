@@ -65,8 +65,7 @@ class JD(object):
                        re_riser_to_light: '24',
                        re_nofar_light: '26',
                        re_power_supply: '27'}
-        #re_ceiling_latch_slc: '25'
-        #re_sidewall_light_bracket: '22'
+
         re_list = jd_dict_new.keys()
 
         for r in re_list:
@@ -79,10 +78,10 @@ class JD(object):
                     elif self.check_riser():
                         jd_set = '20'
                 elif jd_set == '04':
-                    if self.check_disconnect_brkt():
+                    if self.check_disconnect_brkt(self.plug_value):
                         jd_set = '29'
                 elif jd_set == '03':
-                    if self.sidewall_light_bracket():
+                    if not self.sidewall_light_bracket():
                         jd_set = '22'
                 return jd_set                      
             else:
