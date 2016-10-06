@@ -10,13 +10,14 @@ def start_script(script_name, pause):
                            script_name + '.appref-ms', shell=True)
     time.sleep(pause)
 
-def start_script_local(script_name, pause):
+
+def start_script_local(script_name):
 
     work_path_folder = os.getcwd()
     #subprocess.check_call('cd ' + work_path_folder + ' & ' + script_name + '.appref-ms', shell=True)
     subprocess.check_call('cd ' + work_path_folder + ' & ' + script_name + '.exe', shell=True)
-    time.sleep(pause)
+    #time.sleep(pause)
     
 if __name__ == "__main__":
 
-    start_script_local('GetPointCoordinates', 5)
+    start_script_local('GetPointCoordinates')

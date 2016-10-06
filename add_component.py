@@ -1210,8 +1210,6 @@ class Ref(object):
                         NewComponent.Name = str(number) + 'IN STA ' + sta_value(x_coord, plug_value) + ' ' + side + Arch
                         self.set_name(NewComponent.Name)
 
-
-
                     elif section == 'nonconstant' and side == 'LH' and location == 'nose':
 
                         NewComponent = ICM_Sec41_LH_Products.AddExternalComponent(PartDoc)
@@ -2835,21 +2833,24 @@ class Ref(object):
 
 if __name__ == "__main__":
 
-    ecs = Ref('787_9_KAL_ZB656', '0561', 'LH')
-    ecs1 = Ref('787_9_KAL_ZB656', '0345', 'LH')
-    ecs2 = Ref('787_9_KAL_ZB656', '1623', 'LH')
+    ecs = Ref('787_9_JAL_ZB424', '0717', 'RH', 240)
+    ecs1 = Ref('787_9_JAL_ZB424', '0753', 'RH', 240)
+    ecs2 = Ref('787_9_JAL_ZB424', '0801', 'RH', 240)
+    ecs3 = Ref('787_9_JAL_ZB424', '0849', 'RH', 240)
     ecs.build()
     ecs1.build()
     ecs2.build()
+    ecs3.build()
     #print ecs.name
-    ecs.remove_component()
-    ecs1.remove_component()
-    ecs2.remove_component()
+    #ecs.remove_component()
+    #ecs1.remove_component()
+    #ecs2.remove_component()
     #name = ecs.get_ref_name()
     #print name
     print ecs.name
     print ecs1.name
     print ecs2.name
+    print ecs3.name
 
 #    bins = []
 #    ecs = Ref('BRI', '0345', 'LH')

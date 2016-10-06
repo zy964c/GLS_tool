@@ -1,5 +1,6 @@
 import win32com.client
 import glob
+import sys
 from external_component import add_carm_as_external_component
 from json_lookup import json_lookup, json_lookup_fl, json_lookup_fl_keys, json_lookup_components, json_lookup_origin
 from jd import JD
@@ -270,7 +271,7 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value)
     for i in range(1, collection.Count + 1):
             prod = collection.Item(i)
             print collection.Item(i).Name
-            if ref1.get_name() in collection.Item(i).Name:
+            if ref1.name in collection.Item(i).Name:
                 ref_part = collection.Item(i)
                 break
             try:
@@ -399,6 +400,7 @@ def jd_del(carm_pn):
 
 
 def rename_part_body(carm_pn):
+        # type: (object) -> object
 
         """renames part body and activates it"""
 
@@ -635,7 +637,10 @@ class Application(tk.Frame):
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
             brkt_disc_name = ''
-            start_script_local('json_export_console', 1)
+            try:
+                start_script_local('json_export_console')
+            except:
+                sys.exit("running external process json_export_console error")
             for n in range(1, collection1.Count+1):
                 part_name = collection1.Item(n).Name
                 part_pn = collection1.Item(n).PartNumber
@@ -652,10 +657,16 @@ class Application(tk.Frame):
                 reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value)
                 omf = Ref(customer, fairing[0], side, plug_value)
                 create_point_sta(pn, omf, instance_id, carm_name, brkt_disc_name, plug_value)
-            start_script_local('GetPointCoordinates', 1)
+            try:
+                start_script_local('GetPointCoordinates')
+            except:
+                sys.exit("running external process GetPointCoordinates error")
             add_jd_annotation(pn, input_config[0][0], 31, instance_id)
             access_captures(instance_id, 1)
-            start_script_local('GetFlagNoteCoordinates', 1)
+            try:
+                start_script_local('GetFlagNoteCoordinates')
+            except:
+                sys.exit("running external process GetFlagNoteCoordinates error")
             add_annotation(pn, input_config, instance_id)
             capture_del(pn, instance_id)
             jd_del(pn)

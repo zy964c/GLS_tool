@@ -8,11 +8,11 @@ import codecs
 def door_sta(plug_value):
 
     if plug_value == 240:
-        door_station = (693.0 + 120.0)
+        door_station = (690.0 + 120.0)
     elif plug_value == 456:
-        door_station = (693.0 + 240.0)
+        door_station = (690.0 + 240.0)
     else:
-        door_station = 693.0
+        door_station = 690.0
     return door_station
 
 
@@ -149,7 +149,7 @@ def parse_ss(layout, plug_value):
 
 if __name__ == "__main__":
 
-    parse_ss('ZC002.json', 456)
+    parse_ss('JAL_ZB424.json', 240)
 
             
                                                                      
