@@ -6,7 +6,7 @@ def json_lookup(pn):
     """
     returns points coordinates
     """
-    with open('C:\\temp\\GLS\\lights.json') as f:
+    with open('lights.json') as f:
         data = json.load(f)
         try:
             points_dict = data[pn]
@@ -33,7 +33,7 @@ def json_lookup_origin(instance_id):
     """
     returns instance rotation matrix
     """
-    with open('C:\\temp\\GLS\\coord.txt') as f:
+    with open('coord.txt') as f:
         data = json.load(f)
         try:
             matrix_str = data[instance_id]
@@ -50,7 +50,7 @@ def json_lookup_point(carm_pn, point_name):
     """
     returns point coordinates
     """
-    with open('C:\\temp\\GLS\\' + carm_pn + '.txt') as f:
+    with open(carm_pn + '.txt') as f:
         data = json.load(f)
         try:
             matrix_str = data[point_name]
@@ -67,7 +67,7 @@ def json_lookup_fl(pn):
     """
     returns points coordinates
     """
-    with open('C:\\temp\\GLS\\flagnote.json') as f:
+    with open('flagnote.json') as f:
         data = json.load(f)
         try:
             points_dict = data[pn]
@@ -81,7 +81,7 @@ def json_lookup_fl_keys(pn):
     """
     returns points coordinates
     """
-    with open('C:\\temp\\GLS\\flagnote.json') as f:
+    with open('flagnote.json') as f:
         data = json.load(f)
         try:
             points_dict = data[pn]
@@ -95,7 +95,7 @@ def json_lookup_flagnote(carm_pn, point_name):
     """
     returns point coordinates
     """
-    with open('C:\\temp\\GLS\\flagnote_' + carm_pn + '.txt') as f:
+    with open('flagnote_' + carm_pn + '.txt') as f:
         data = json.load(f)
         try:
             matrix_str = data[point_name]
@@ -113,7 +113,7 @@ def json_lookup_axis(view):
     returns coord of an axis
     """
     axis_name = view.replace('Text Plane', 'Axis System')
-    with open('C:\\temp\\GLS\\axis.txt') as f:
+    with open('axis.txt') as f:
         data = json.load(f)
         try:
             matrix_str = data[axis_name]
@@ -130,7 +130,7 @@ def json_lookup_camera(camera_name):
     """
     returns coord of an axis
     """
-    with open('C:\\temp\\GLS\\cameras.txt') as f:
+    with open('cameras.txt') as f:
         data = json.load(f)
         try:
             matrix_str = data[camera_name]
@@ -154,7 +154,7 @@ def json_lookup_components(pn):
     """
     returns points coordinates
     """
-    with open('C:\\temp\\GLS\\jd_vectors.json') as f:
+    with open('jd_vectors.json') as f:
         data = json.load(f)
         try:
             components = data[pn]
