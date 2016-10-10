@@ -1,6 +1,7 @@
 import win32com.client
 import glob
 import sys
+import os
 from external_component import add_carm_as_external_component
 from json_lookup import json_lookup, json_lookup_fl, json_lookup_fl_keys, json_lookup_components, json_lookup_origin
 from jd import JD
@@ -8,14 +9,14 @@ from add_component import Ref
 from change_inst_id import change_inst_id
 from axis import make_axis
 from jd_annot import add_jd_annotation, activate_top_prod, access_captures, add_annotation
-from start_script import start_script_local
+# from start_script import start_script_local
 from camera import cameras
-# import ttk
 import Tkinter as tk
 import tkMessageBox
 from summarize import std_parts
 from json_parsing import parse_ss
 from functions import sta_value
+from subprocess import check_call
 
 #catia = win32com.client.Dispatch('catia.application')
 #productDocument1 = catia.ActiveDocument
@@ -548,6 +549,7 @@ class Application(tk.Frame):
 
             plug_value = self.plug.get()
             input_config = []
+            work_path_folder = os.getcwd()
             
             size1_value = self.size1.get()
             size2_value = self.size2.get()
@@ -638,7 +640,8 @@ class Application(tk.Frame):
             carm_name = collection1.Item(collection1.Count).Name
             brkt_disc_name = ''
             try:
-                start_script_local('json_export_console')
+                #start_script_local('json_export_console')
+                check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe coord', shell=True)
             except:
                 sys.exit("running external process json_export_console error")
             for n in range(1, collection1.Count+1):
@@ -658,13 +661,15 @@ class Application(tk.Frame):
                 omf = Ref(customer, fairing[0], side, plug_value)
                 create_point_sta(pn, omf, instance_id, carm_name, brkt_disc_name, plug_value)
             try:
-                start_script_local('GetPointCoordinates')
+                #start_script_local('GetPointCoordinates')
+                check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe jd', shell=True)
             except:
                 sys.exit("running external process GetPointCoordinates error")
             add_jd_annotation(pn, input_config[0][0], 31, instance_id)
             access_captures(instance_id, 1)
             try:
-                start_script_local('GetFlagNoteCoordinates')
+                #start_script_local('GetFlagNoteCoordinates')
+                check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe fn', shell=True)
             except:
                 sys.exit("running external process GetFlagNoteCoordinates error")
             add_annotation(pn, input_config, instance_id)
