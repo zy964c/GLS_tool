@@ -177,5 +177,5 @@ if __name__ == "__main__":
     # pprint(look_at_dict)
     # b = Annotation('FL1', 'Inboard Facing Out - Lower Support', 'FL1 and FL2 Typical')
     # print b.get_annot_name()
-    # print annotations.get_view_name('Fixing Tower', 'RH', '47')
+    print annotations.get_view_name('Fixing Tower', 'RH', '47')
     print annotations.get_capture('FL4')
