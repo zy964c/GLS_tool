@@ -33,7 +33,7 @@ def json_lookup_origin(instance_id):
     """
     returns instance rotation matrix
     """
-    with open('coord.txt') as f:
+    with open('temp\coord.txt') as f:
         data = json.load(f)
         try:
             matrix_str = data[instance_id]
@@ -50,7 +50,7 @@ def json_lookup_point(carm_pn, point_name):
     """
     returns point coordinates
     """
-    with open(carm_pn + '.txt') as f:
+    with open('temp\\' + carm_pn + '.txt') as f:
         data = json.load(f)
         try:
             matrix_str = data[point_name]
@@ -95,7 +95,7 @@ def json_lookup_flagnote(carm_pn, point_name):
     """
     returns point coordinates
     """
-    with open('flagnote_' + carm_pn + '.txt') as f:
+    with open('temp/flagnote_' + carm_pn + '.txt') as f:
         data = json.load(f)
         try:
             matrix_str = data[point_name]
