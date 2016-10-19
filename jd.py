@@ -82,7 +82,10 @@ class JD(object):
                         jd_set = '29'
                 elif jd_set == '03':
                     if not self.sidewall_light_bracket():
-                        jd_set = '22'
+                        if self.check_sidewall():
+                            jd_set = '22'
+                        else:
+                            jd_set = '23'
                 return jd_set                      
             else:
                 continue
@@ -110,7 +113,7 @@ class JD(object):
         else:
             return None
 
-    def get_riser_origins(self):
+    def get_riser_origins(self, detail='raisers'):
         
         catia = win32com.client.Dispatch('catia.application')
         productDocument1 = catia.ActiveDocument
@@ -119,9 +122,11 @@ class JD(object):
         product = collection.Item(self.irm_name)
         collection1 = product.Products
         x_riser = []
+        d_type = {'raisers':'C519503-515', 'sidewall':'1X5005-420100-1'}
+        pn_to_find = d_type[detail]
         for n in range(1, collection1.Count+1):
             part_pn = collection1.Item(n).PartNumber
-            if 'C519503-515' in part_pn:
+            if pn_to_find in part_pn:
                 x_coord = json_lookup_origin(collection1.Item(n).Name)[-3]
                 x_riser.append(x_coord)
             else:
@@ -130,6 +135,7 @@ class JD(object):
             return x_riser
         else:
             return None
+
 
     def check_riser(self):
 
@@ -144,6 +150,25 @@ class JD(object):
                     if (math.ceil(riser*1)/1) == (math.ceil(latch*1)/1):
                         return True
         return False
+
+    def check_sidewall(self):
+
+        x_coord_sidewall = json_lookup_origin(self.part_name)[-3]
+        print x_coord_sidewall
+        sidewall_list = self.get_riser_origins('sidewall')
+        print sidewall_list
+        if sidewall_list is not None:
+            sidewall_list.append(x_coord_sidewall)
+            sidewall_list.sort()
+            positions = [i for i,x in enumerate(sidewall_list) if x == x_coord_sidewall]
+            if len(positions) > 0:
+                order = positions[0] + 1
+                if order % 2 == 0:
+                    return False
+                else:
+                    return True
+            else:
+                return True
 
     def check_slc_light(self):
 
@@ -183,7 +208,7 @@ class JD(object):
 #    def if_slc(self):
 if __name__ == "__main__":
 
-    irm_name = 'GLS_STA0657-0897_OB_LH_CAI'
+    irm_name = 'GLS_STA0465-0561_OB_LH_CAI'
     catia = win32com.client.Dispatch('catia.application')
     productDocument1 = catia.ActiveDocument
     Product = productDocument1.Product

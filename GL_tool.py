@@ -115,7 +115,7 @@ def create_point_fl(part_name1, carm_pn, part_pn, minor):
         hybridBody2 = hybrid_bodies2.Item('flagnote')
         make_axis(part_name1, carm_pn)
         axisSystems1 = current_part.AxisSystems
-        axis = axisSystems1.Item(axisSystems1.Count)   
+        axis = axisSystems1.Item(axisSystems1.Count)
         for coord, key in zip(range(len(points_js)), range(len(keys_js))):
             reference1 = current_part.CreateReferenceFromObject(axis)
             point_added = HybridShapeFactory1.AddNewPointCoord((points_js[coord])[0],
@@ -691,7 +691,8 @@ class Application(tk.Frame):
 if __name__ == "__main__":
 
     root = tk.Tk()
-    root.resizable(0, 0)
+    #root.resizable(0, 0)
+    root.resizable(width = True, height = True)
     Application(root).pack()
     try:
         catia = win32com.client.Dispatch('catia.application')
