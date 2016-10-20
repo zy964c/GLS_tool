@@ -285,10 +285,10 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value)
                         ref_part = collection1.Item(j)
                         break
             else:
-                continue       
+                continue
     ref_part.ApplyWorkMode(2)
     selection1.Add(ref_part)
-    selection1.Search(str('NAME = *' + str(size) + '*IN*REF*, sel'))
+    selection1.Search(str('(NAME = *' + str(size) + '*IN*REF* + NAME = BACS31H1A*WMA*REF*), sel'))
     try:
             selection1.Copy()
     except:
@@ -296,7 +296,6 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value)
     else:
             selection1.Clear()
             geom_elem5 = return_part(instance_id1, part_name1)
-            
             hybridBodies1 = geom_elem5.HybridBodies
             hybridBody1 = hybridBodies1.Item("Reference Geometry")
             selection1.Add(hybridBody1)

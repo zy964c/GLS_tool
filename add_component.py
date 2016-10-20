@@ -2833,14 +2833,14 @@ class Ref(object):
 
 if __name__ == "__main__":
 
-    ecs = Ref('787_9_JAL_ZB424', '0717', 'RH', 240)
-    ecs1 = Ref('787_9_JAL_ZB424', '0753', 'RH', 240)
-    ecs2 = Ref('787_9_JAL_ZB424', '0801', 'RH', 240)
-    ecs3 = Ref('787_9_JAL_ZB424', '0849', 'RH', 240)
+    ecs = Ref('787_9_CAL_ZB167', '0561', 'LH', 240)
+    ecs1 = Ref('787_9_CAL_ZB167', '0609', 'LH', 240)
+    ecs2 = Ref('787_9_CAL_ZB167', '0609+42', 'LH', 240)
+    #ecs3 = Ref('787_9_CAL_ZB167', '0849', 'RH', 240)
     ecs.build()
     ecs1.build()
     ecs2.build()
-    ecs3.build()
+    #ecs3.build()
     #print ecs.name
     #ecs.remove_component()
     #ecs1.remove_component()
@@ -2850,7 +2850,7 @@ if __name__ == "__main__":
     print ecs.name
     print ecs1.name
     print ecs2.name
-    print ecs3.name
+    #print ecs3.name
 
 #    bins = []
 #    ecs = Ref('BRI', '0345', 'LH')
