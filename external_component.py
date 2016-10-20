@@ -28,7 +28,9 @@ def add_carm_as_external_component(pn, name):
         children_of_product_to_insert_carm.AddExternalComponent(PartDoc)
         PartDoc.Close()
         oFileSys.DeleteFile(PartDocPath1)
+        return pn
 
 if __name__ == "__main__":
 
-        add_carm_as_external_component('CA123', 'yyy.1')
+        new_pn = add_carm_as_external_component('CA836Z1131-42', 'GLS_STA0561-0657_OB_LH_CAI')
+        print new_pn

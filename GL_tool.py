@@ -634,7 +634,7 @@ class Application(tk.Frame):
                     collection_rename.Item(m).Name = part1_new_name
                 except:
                     continue     
-            add_carm_as_external_component(pn, instance_id)
+            pn = add_carm_as_external_component(pn, instance_id)
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
             brkt_disc_name = ''
