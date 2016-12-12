@@ -9,7 +9,6 @@ from add_component import Ref
 from change_inst_id import change_inst_id
 from axis import make_axis
 from jd_annot import add_jd_annotation, activate_top_prod, access_captures, add_annotation
-# from start_script import start_script_local
 from camera import cameras
 import Tkinter as tk
 import tkMessageBox
@@ -17,14 +16,6 @@ from summarize import std_parts
 from json_parsing import parse_ss
 from functions import sta_value
 from subprocess import check_call
-
-#catia = win32com.client.Dispatch('catia.application')
-#productDocument1 = catia.ActiveDocument
-#Product = productDocument1.Product
-#collection = Product.Products
-#selection1 = productDocument1.Selection
-#selection2 = productDocument1.Selection
-#documents = catia.Documents
 
 
 def return_part(prdct_id, part_id):
