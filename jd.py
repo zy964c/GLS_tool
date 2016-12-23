@@ -42,8 +42,8 @@ class JD(object):
         re_riser_to_light = re.compile('C519503-515##ALT1$')
         re_nofar_light = re.compile('1J5009-3010\d{2}-\d##ALT\d+')
         re_power_supply = re.compile('1X5005-300000-\d##ALT\d+')
-        re_ringpost = re.compile('^(IC830Z3000-1.+[^rp]$)')
-        re_bushing = re.compile('^(IC830Z3000-1.+rp)$')
+        re_bushing = re.compile('^(IC830Z3000-1.+[^rp]$)')
+        re_ringpost = re.compile('^(IC830Z3000-1.+rp)$')
 
         jd_dict_new = {re_ceiling_light: '01',
                        re_noise_seal: '02',

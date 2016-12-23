@@ -634,7 +634,7 @@ class Application(tk.Frame):
                     part1_new_name = part1_name.replace(str_to_replace, str_new)
                     collection_rename.Item(m).Name = part1_new_name
                 except:
-                    continue     
+                    continue
             pn = add_carm_as_external_component(pn, instance_id)
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
@@ -650,6 +650,17 @@ class Application(tk.Frame):
                 omf = Ref(customer, fairing[0], side, plug_value, name=instance_id)
                 create_point_sta(pn, omf)
             # Scan parts for JD points and flagnotes:
+
+            for prod in xrange(1, collection.Count + 1):
+                if collection.Item(prod).name == instance_id:
+                    collection1 = collection.Item(prod).Products
+                    for prod1 in xrange(1, collection1.Count + 1):
+                        parent_name = collection1.Item(prod1).Name
+                        collection2 = collection1.Item(prod1).ReferenceProduct.Products
+                        if collection2.Count > 0:
+                            for prod2 in xrange(1, collection2.Count + 1):
+                                cur_name = collection2.Item(prod2).Name
+                                collection2.Item(prod2).Name = parent_name + '_' + cur_name
 
             try:
                 #start_script_local('json_export_console')
