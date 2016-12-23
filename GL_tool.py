@@ -17,6 +17,8 @@ from json_parsing import parse_ss
 from functions import sta_value
 from subprocess import check_call
 
+ref_objects = []
+
 
 def return_part(prdct_id, part_id):
     """
@@ -50,7 +52,7 @@ def create_point(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_va
 
     points_js = json_lookup(part_pn)
     if points_js is not None:
-        for i in range(1, documents.Count + 1):
+        for i in xrange(1, documents.Count + 1):
             if carm_pn in documents.Item(i).Name:
                 partDocument1 = documents.Item(i)
         current_part = partDocument1.Part
@@ -95,7 +97,7 @@ def create_point_fl(part_name1, carm_pn, part_pn, minor):
     points_js = json_lookup_fl(part_pn)
     keys_js = json_lookup_fl_keys(part_pn)
     if points_js is not None:
-        for i in range(1, documents.Count + 1):
+        for i in xrange(1, documents.Count + 1):
             if carm_pn in documents.Item(i).Name:
                 partDocument1 = documents.Item(i)
         current_part = partDocument1.Part
@@ -107,7 +109,7 @@ def create_point_fl(part_name1, carm_pn, part_pn, minor):
         make_axis(part_name1, carm_pn)
         axisSystems1 = current_part.AxisSystems
         axis = axisSystems1.Item(axisSystems1.Count)
-        for coord, key in zip(range(len(points_js)), range(len(keys_js))):
+        for coord, key in zip(xrange(len(points_js)), xrange(len(keys_js))):
             reference1 = current_part.CreateReferenceFromObject(axis)
             point_added = HybridShapeFactory1.AddNewPointCoord((points_js[coord])[0],
                                                                (points_js[coord])[1],
@@ -140,9 +142,9 @@ def create_point_fl(part_name1, carm_pn, part_pn, minor):
         current_part.Update()
         
 
-def create_point_sta(carm_pn, omf1, instance_id, carm_name, brkt_disc_name, plug_value):
+def create_point_sta(carm_pn, omf1):
 
-    for i in range(1, documents.Count + 1):
+    for i in xrange(1, documents.Count + 1):
             if carm_pn in documents.Item(i).Name:
                 partDocument1 = documents.Item(i)
     current_part = partDocument1.Part
@@ -154,48 +156,26 @@ def create_point_sta(carm_pn, omf1, instance_id, carm_name, brkt_disc_name, plug
     sta = omf1.get_position_sta()
     mounting_feature = omf1.get_position_mounting()
     alignment_feature = omf1.get_position_alignment()
-    ringpost1 = omf1.get_position_offset_ringpost1()
-    ringpost2 = omf1.get_position_offset_ringpost2()
-    bushing1 = omf1.get_position_offset_bushing1()
-    bushing2 = omf1.get_position_offset_bushing2()
     points = []
     names = ['sta', '1X5005-412(XXX) Mounting Feature',
-             '1X5005-412(XXX) Alignment Feature',
-             'ringpost1', 'ringpost2', 'bushing1', 'bushing2']
-    points.extend((sta, mounting_feature, alignment_feature, ringpost1,
-                   ringpost2, bushing1, bushing2))
-    for i in range(len(points)):
+             '1X5005-412(XXX) Alignment Feature']
+    points.extend((sta, mounting_feature, alignment_feature))
+    for i in xrange(len(points)):
         if points[i] is not None:
             point_added = HybridShapeFactory1.AddNewPointCoord(points[i][0],
                                                                points[i][1],
                                                                points[i][2])
             if hybridBody2 is not None:
-                if 'ringpost' in names[i] or 'bushing' in names[i]:
-                    hybrid_body_jd1 = jd_set(carm_name, instance_id, '', names[i], plug_value)
-                    points1 = hybrid_body_jd1.HybridShapes
-                    if points1.Count > 0 and 'FIDV' in points1.Item(points1.Count).Name:
-                        selection1.Add(points1.Item(points1.Count))
-                        selection1.Delete()
-                        selection1.Clear()
-                    hybrid_body_jd1.AppendHybridShape(point_added)
-                    point_added.Name = hybrid_body_jd1.Name + '.' + str(points1.Count)
-                    parameters1 = current_part.Parameters
-                    param_hole_qty = parameters1.Item('Joint Definitions\\' +
-                                                      hybrid_body_jd1.Name +
-                                                      '\\Hole Quantity')
-                    param_hole_qty.Value = points1.Count
-                    create_jd_vectors2(brkt_disc_name, instance_id, carm_name, carm_pn, names[i][:-1], plug_value)
-                else:
-                    hybridBody2.AppendHybridShape(point_added)
-                    point_added.Name = names[i]
+                hybridBody2.AppendHybridShape(point_added)
+                point_added.Name = names[i]
         current_part.Update()
 
 
 def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_value):
-    
+
     points_js = json_lookup_components(part_pn)
     if points_js is not None:
-        for i in range(1, documents.Count + 1):
+        for i in xrange(1, documents.Count + 1):
             if carm_pn in documents.Item(i).Name:
                 partDocument1 = documents.Item(i)
         current_part = partDocument1.Part
@@ -213,13 +193,13 @@ def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn, p
         make_axis(part_name1, carm_pn)
         axisSystems1 = current_part.AxisSystems
         axis = axisSystems1.Item(axisSystems1.Count)
-        dir = HybridShapeFactory1.AddNewDirectionByCoord(points_js[0],
-                                                         points_js[1],
-                                                         points_js[2])
+        direction = HybridShapeFactory1.AddNewDirectionByCoord(points_js[0],
+                                                               points_js[1],
+                                                               points_js[2])
         reference1 = current_part.CreateReferenceFromObject(axis)
         reference2 = current_part.CreateReferenceFromObject(point)                                               
-        dir.RefAxisSystem = reference1
-        vector = HybridShapeFactory1.AddNewLinePtDir(reference2, dir,
+        direction.RefAxisSystem = reference1
+        vector = HybridShapeFactory1.AddNewLinePtDir(reference2, direction,
                                                      0.000000,
                                                      25.400000,
                                                      False)
@@ -254,26 +234,26 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
 
 
 def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value):
-    
-    ref1 = Ref(customer, sta1, side1, plug_value)
+
+    global ref_objects
+    ref1 = Ref(customer, sta1, side1, plug_value, name=instance_id1)
     ref1.build()
-    #print ref1.name
-    #if ref1.name is not None:
-    
-    for i in range(1, collection.Count + 1):
-            prod = collection.Item(i)
-            print collection.Item(i).Name
-            if ref1.name in collection.Item(i).Name:
-                ref_part = collection.Item(i)
+    product = collection.Item(instance_id1)
+    collection1 = product.Products
+    for i in xrange(1, collection1.Count + 1):
+            prod = collection1.Item(i)
+            print ref1.component_name
+            if ref1.component_name in collection1.Item(i).Name:
+                ref_part = collection1.Item(i)
                 break
             try:
-                collection1 = prod.Products
+                collection2 = prod.Products
             except:
                 continue
-            if collection1.Count > 0:
-                for j in range(1, collection1.Count + 1):
-                    if ref1.get_name() in collection1.Item(j).Name:
-                        ref_part = collection1.Item(j)
+            if collection2.Count > 0:
+                for j in xrange(1, collection2.Count + 1):
+                    if ref1.component_name in collection2.Item(j).Name:
+                        ref_part = collection2.Item(j)
                         break
             else:
                 continue
@@ -302,6 +282,7 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value)
             selection1.Copy()
     except:
             print 'SOLIDS NOT FOUND'
+            ref_objects.append(ref1)
             return None
     else:
             selection1.Clear()
@@ -311,10 +292,8 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value)
             selection1.PasteSpecial('CATPrtResultWithOutLink')
             carm_part.Update()
             selection1.Clear()
-
-    ref1.remove_component()
-    #else:
-        #return None
+    ref_objects.append(ref1)
+#    ref1.remove_component()
 
 
 def deleter():
@@ -351,7 +330,7 @@ def capture_del(carm_pn, instance_id):
     Captures1 = ann_set1.Captures
     found = 0
     selection1.Clear()
-    for capture in range(1, Captures1.Count+1):
+    for capture in xrange(1, Captures1.Count+1):
         current_capture = Captures1.Item(capture)
         print current_capture.Name
         annots = current_capture.Annotations
@@ -375,7 +354,7 @@ def jd_del(carm_pn):
     hybrid_bodies2 = hybrid_body1.HybridBodies
     found = 0
     selection1.Clear()
-    for geoset in range(1, hybrid_bodies2.Count+1):
+    for geoset in xrange(1, hybrid_bodies2.Count+1):
         hb = hybrid_bodies2.Item(geoset)
         print hb.Name
         points = hb.HybridShapes
@@ -404,9 +383,32 @@ def rename_part_body(carm_pn):
         hyb_bodies = carm_part.HybridBodies
         st_notes = hyb_bodies.Item('Standard Notes:')
         carm_part.InWorkObject = st_notes
-            
 
-class Application(tk.Frame):             
+
+def scan_parts(collection_parts, instance_id, carm_name, pn, ringposts, plug_value):
+    
+    for n in xrange(1, collection_parts.Count+1):
+                next_part = collection_parts.Item(n)
+                print collection_parts.Item(n).Name
+
+                collection_parts2 = next_part.Products
+                if collection_parts2.Count > 0:
+                    scan_parts(collection_parts2, instance_id, carm_name, pn, ringposts, plug_value)
+                else:
+                    part_name = collection_parts.Item(n).Name
+                    print part_name
+                    part_pn = collection_parts.Item(n).PartNumber
+                    #if part_pn == '836Z1510-1':
+                    #    brkt_disc_name = part_name
+                    if part_pn in ringposts:
+                        create_point(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
+                        create_jd_vectors2(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
+                    create_point(part_name, instance_id, carm_name, pn, part_pn, plug_value)
+                    create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn, plug_value)
+                    create_point_fl(part_name, pn, part_pn, plug_value)
+
+
+class Application(tk.Frame):
         def __init__(self, root):
             tk.Frame.__init__(self, root)
             root.geometry("300x500")
@@ -537,6 +539,8 @@ class Application(tk.Frame):
             
         def start(self):
 
+            global ref_objects
+
             plug_value = self.plug.get()
             input_config = []
             work_path_folder = os.getcwd()
@@ -610,7 +614,13 @@ class Application(tk.Frame):
             ringposts = {'836Z1510-24': '836Z1510-24_pclamp',
                          '836Z1510-22': '836Z1510-22_ringpost',
                          '836Z1510-2': '836Z1510-2_ringpost',
-                         '836Z1510-3': '836Z1510-3_ringpost'}
+                         '836Z1510-3': '836Z1510-3_ringpost',
+                         'IC830Z3000-1.3.2': 'IC830Z3000-1.3.2_rp',
+                         'IC830Z3000-1.5': 'IC830Z3000-1.5_rp',
+                         'IC830Z3000-1.10': 'IC830Z3000-1.10_rp',
+                         'IC830Z3000-1.13': 'IC830Z3000-1.13_rp',
+                         'IC830Z3000-1.Twenty_four_arch_LH': 'IC830Z3000-1.Twenty_four_arch_LH_rp',
+                         'IC830Z3000-1.Twenty_four_arch_RH': 'IC830Z3000-1.Twenty_four_arch_RH_rp'}
             
             product = collection.Item(instance_id)
             product.ApplyWorkMode(2)
@@ -618,7 +628,7 @@ class Application(tk.Frame):
             collection_rename = product.ReferenceProduct.Products
             str_to_replace = '1251-2'
             str_new = '1251-41'
-            for m in range(1, collection_rename.Count+1):
+            for m in xrange(1, collection_rename.Count+1):
                 part1_name = collection_rename.Item(m).Name
                 try:
                     part1_new_name = part1_name.replace(str_to_replace, str_new)
@@ -629,27 +639,29 @@ class Application(tk.Frame):
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
             brkt_disc_name = ''
+            for part in xrange(1, collection1.Count):
+                part_name = collection1.Item(part).Name
+                part_pn = collection1.Item(part).PartNumber
+                if part_pn == '836Z1510-1':
+                    brkt_disc_name = part_name
+
+            for fairing in input_config:
+                reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value)
+                omf = Ref(customer, fairing[0], side, plug_value, name=instance_id)
+                create_point_sta(pn, omf)
+            # Scan parts for JD points and flagnotes:
+
             try:
                 #start_script_local('json_export_console')
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe coord', shell=True)
             except:
                 sys.exit("running external process json_export_console error")
-            for n in range(1, collection1.Count+1):
-                part_name = collection1.Item(n).Name
-                part_pn = collection1.Item(n).PartNumber
-                if part_pn == '836Z1510-1':
-                    brkt_disc_name = part_name
-                if part_pn in ringposts:
-                    create_point(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
-                    create_jd_vectors2(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
-                create_point(part_name, instance_id, carm_name, pn, part_pn, plug_value)
-                create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn, plug_value)
-                create_point_fl(part_name, pn, part_pn, plug_value)
-        
-            for fairing in input_config:
-                reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value)
-                omf = Ref(customer, fairing[0], side, plug_value)
-                create_point_sta(pn, omf, instance_id, carm_name, brkt_disc_name, plug_value)
+
+            scan_parts(collection1, instance_id, carm_name, pn, ringposts, plug_value)
+
+            for ref in ref_objects:
+                ref.remove_component()
+            
             try:
                 #start_script_local('GetPointCoordinates')
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe jd', shell=True)
@@ -669,11 +681,11 @@ class Application(tk.Frame):
             cameras(pn, side, omf)
             rename_part_body(pn)
             selection1.Clear()
-            for f in range(4):
-                selection1.Clear()
-                selection1.Add(collection.Item(collection.Count - f))
-                selection1.visProperties.SetShow(1)
-                selection1.Clear()
+            #for f in xrange(4):
+            #    selection1.Clear()
+            #    selection1.Add(collection.Item(collection.Count - f))
+            #    selection1.visProperties.SetShow(1)
+            #    selection1.Clear()
             activate_top_prod()
             Product.Update()
             root.destroy()
@@ -682,7 +694,7 @@ if __name__ == "__main__":
 
     root = tk.Tk()
     #root.resizable(0, 0)
-    root.resizable(width = True, height = True)
+    root.resizable(width=True, height=True)
     Application(root).pack()
     try:
         catia = win32com.client.Dispatch('catia.application')
@@ -699,4 +711,3 @@ if __name__ == "__main__":
         root.destroy()
     else:
         root.mainloop()
-

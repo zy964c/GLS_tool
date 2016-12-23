@@ -23,63 +23,16 @@ class Ref(object):
     work_path_lib = work_path + '\LIBRARY'
     print work_path_lib
 
-    @staticmethod
-    def instantiate_nonconstant_components():
-        """
-        Instantiates 4 products for non-constant sections
-        :return: no return
-        """
+ #  @staticmethod
 
-        try:
-            ICM = Ref.CATIA.ActiveDocument
-        except:
-            ICM = Ref.CATIA.Documents.Add('Product')
-
-        ICM_1 = ICM.Product
-        ICM_Products = ICM_1.Products
-
-        global new_component1
-        try:
-            new_component1 = ICM_Products.Item('non-constant_41_LH.1')
-        except:
-            new_component1 = ICM_Products.AddNewComponent("Product", 'non-constant_41_LH')
-        global ICM_Sec41_LH_Products
-        ICM_Sec41_LH_Products = new_component1.Products
-
-        global new_component2
-        try:
-            new_component2 = ICM_Products.Item('non-constant_41_RH.1')
-        except:
-            new_component2 = ICM_Products.AddNewComponent("Product", 'non-constant_41_RH')
-
-        global ICM_Sec41_RH_Products
-        ICM_Sec41_RH_Products = new_component2.Products
-
-        global new_component3
-        try:
-            new_component3 = ICM_Products.Item('non-constant_47_LH.1')
-        except:
-            new_component3 = ICM_Products.AddNewComponent("Product", 'non-constant_47_LH')
-
-        global ICM_Sec47_LH_Products
-        ICM_Sec47_LH_Products = new_component3.Products
-
-        global new_component4
-        try:
-            new_component4 = ICM_Products.Item('non-constant_47_RH.1')
-        except:
-            new_component4 = ICM_Products.AddNewComponent("Product", 'non-constant_47_RH')
-
-        global ICM_Sec47_RH_Products
-        ICM_Sec47_RH_Products = new_component4.Products
-
-    def __init__(self, customer, sta_to_find, side_to_find, plug, path=work_path_lib, name=None):
+    def __init__(self, customer, sta_to_find, side_to_find, plug, path=work_path_lib, name=None, component_name=None):
         self.plug = plug
         self.path = path
         self.customer = customer
         self.sta_to_find = sta_to_find
         self.side_to_find = side_to_find
         self.name = name
+        self.component_name = component_name
 
     def set_plug(self, new_plug):
         self.plug = new_plug
@@ -97,14 +50,14 @@ class Ref(object):
         self.side_to_find = new_side_to_find
 
     def set_name(self, new_name):
-        self.name = new_name
+        self.component_name = new_name
 
     def get_name(self):
         return self.name
 
     def converter(self):
 
-        f = open(str(self.customer) + '.txt', 'r')
+        f = open(str(self.customer) + '.txt')
         s_raw = f.readlines()
         #print s_raw
         s_all = []
@@ -135,7 +88,65 @@ class Ref(object):
 
         return s1, s2, s3, s4, s5, s6
 
-    def add_component(self, s, side, section, location, plug_value):
+    def instantiate_nonconstant_components(self):
+        """
+        Instantiates 4 products for non-constant sections
+        :return: no return
+        """
+
+        try:
+            ICM = Ref.CATIA.ActiveDocument
+        except:
+            ICM = Ref.CATIA.Documents.Add('Product')
+
+#        ICM_1 = ICM.Product
+#        ICM_Products = ICM_1.Products
+
+        ICM_1 = ICM.Product
+        ICM_Products_irms = ICM_1.Products
+        ICM_Product = ICM_Products_irms.Item(self.name)
+        ICM_Products = ICM_Product.Products
+        ICM_Products_ref = ICM_Product.ReferenceProduct.Products
+
+        global new_component1
+        try:
+            new_component1 = ICM_Products.Item(self.name + '_' + 'non-constant_41_LH.1')
+        except:
+            new_component1 = ICM_Products.AddNewComponent("Product", self.name + '_' + 'non-constant_41_LH')
+#            name_ref = new_component1.Name
+#            new_component1_ref = new_component1.RefefrenceProduct.Name = new_component1.Name[:-2]
+
+        global ICM_Sec41_LH_Products
+        ICM_Sec41_LH_Products = new_component1.Products
+
+        global new_component2
+        try:
+            new_component2 = ICM_Products.Item(self.name + '_' + 'non-constant_41_RH.1')
+        except:
+            new_component2 = ICM_Products.AddNewComponent("Product", self.name + '_' + 'non-constant_41_RH')
+
+        global ICM_Sec41_RH_Products
+        ICM_Sec41_RH_Products = new_component2.Products
+
+        global new_component3
+        try:
+            new_component3 = ICM_Products.Item(self.name + '_' + 'non-constant_47_LH.1')
+        except:
+            new_component3 = ICM_Products.AddNewComponent("Product", self.name + '_' + 'non-constant_47_LH')
+
+        global ICM_Sec47_LH_Products
+        ICM_Sec47_LH_Products = new_component3.Products
+
+        global new_component4
+        try:
+            new_component4 = ICM_Products.Item(self.name + '_' + 'non-constant_47_RH.1')
+        except:
+            new_component4 = ICM_Products.AddNewComponent("Product", self.name + '_' + 'non-constant_47_RH')
+
+        global ICM_Sec47_RH_Products
+        ICM_Sec47_RH_Products = new_component4.Products
+
+    def add_component(self, s, side, section, location, plug_value, name=None):
         """
         :param s: a list containing information about bin run
         :param side: 'LH' or 'RH' side
@@ -145,9 +156,16 @@ class Ref(object):
         :return: Doesn't return anything, builds ECS layout using CATIA objects library and sets instance IDs. Modifies
         globals: sta_value_pairs, sta_values_fake
         """
+
         ICM = Ref.CATIA.ActiveDocument
         ICM_1 = ICM.Product
-        ICM_Products = ICM_1.Products
+        ICM_Products_irms = ICM_1.Products
+        #debugging
+        #print name
+        #for i in range(1, ICM_Products_irms.Count+1):
+        #    print ICM_Products_irms.Item(i).Name
+        ICM_Product = ICM_Products_irms.Item(name)
+        ICM_Products = ICM_Product.Products
         bin_breaker = []
         extention = '.CATProduct'
         global sta_value_pairs
@@ -1360,7 +1378,6 @@ class Ref(object):
 
                 x_coord += inch_to_mm(int(number))
 
-
     def add_component_coord(self, s, side, section, location, plug_value, target='coord'):
         """
         :param s: a list containing information about bin run
@@ -2522,7 +2539,7 @@ class Ref(object):
                 sec = 'constant'
         return sec
 
-    def find_sta(self, origin, size, kind = 'sta', **kwargs):
+    def find_sta(self, origin, size, kind='sta', **kwargs):
 
         size = size.replace('\n', '')
         sec = 'constant'
@@ -2661,26 +2678,24 @@ class Ref(object):
                 sta_pos.append(origin[i] + sta_offset_RH[i])
         return sta_pos
 
-
     def build(self):
 
-        Ref.instantiate_nonconstant_components()
+        Ref.instantiate_nonconstant_components(self)
 
         s1, s2, s3, s4, s5, s6 = self.converter()
 
         if s3 != ['']:
-            Ref.add_component(self, s3, 'LH', 'constant', 'middle', self.plug)
+            Ref.add_component(self, s3, 'LH', 'constant', 'middle', self.plug, self.name)
         if s4 != ['']:
-            Ref.add_component(self, s4, 'RH', 'constant', 'middle', self.plug)
+            Ref.add_component(self, s4, 'RH', 'constant', 'middle', self.plug, self.name)
         if s1 != ['']:
-            Ref.add_component(self, s1, 'LH', 'nonconstant', 'nose', 0)
+            Ref.add_component(self, s1, 'LH', 'nonconstant', 'nose', 0, self.name)
         if s2 != ['']:
-            Ref.add_component(self, s2, 'RH', 'nonconstant', 'nose', 0)
+            Ref.add_component(self, s2, 'RH', 'nonconstant', 'nose', 0, self.name)
         if s5 != ['']:
-            Ref.add_component(self, s5, 'LH', 'nonconstant', 'tail', self.plug)
+            Ref.add_component(self, s5, 'LH', 'nonconstant', 'tail', self.plug, self.name)
         if s6 != ['']:
-            Ref.add_component(self, s6, 'RH', 'nonconstant', 'tail', self.plug)
-
+            Ref.add_component(self, s6, 'RH', 'nonconstant', 'tail', self.plug, self.name)
 
     def get_x_coord(self):
 
@@ -2740,48 +2755,39 @@ class Ref(object):
             if result is not None:
                 return result
 
-            
     def get_position_sta(self):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'))
-
+        return self.find_sta(self.get_position(), self.get_position(target='size'))
 
     def get_position_mounting(self):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind = 'mounting')
-
+        return self.find_sta(self.get_position(), self.get_position(target='size'), kind='mounting')
 
     def get_position_alignment(self):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind = 'alignment')
-        
-        
+        return self.find_sta(self.get_position(), self.get_position(target='size'), kind='alignment')
+
     def get_position_offset_ringpost1(self):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind = 'ringpost1')
-        
-        
+        return self.find_sta(self.get_position(), self.get_position(target='size'), kind='ringpost1')
+
     def get_position_offset_ringpost2(self):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind = 'ringpost2')
-        
-        
+        return self.find_sta(self.get_position(), self.get_position(target='size'), kind='ringpost2')
+
     def get_position_offset_bushing1(self):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind = 'bushing1')
-
+        return self.find_sta(self.get_position(), self.get_position(target='size'), kind='bushing1')
 
     def get_position_offset_bushing2(self):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind = 'bushing2')
-
+        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind='bushing2')
 
     def get_position_camera(self, origin):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind = 'camera', coord_origin = origin)
+        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind='camera', coord_origin = origin)
 
-
-    def get_position(self, target = 'position'):
+    def get_position(self, target='position'):
 
         s1, s2, s3, s4, s5, s6 = self.converter()
 
@@ -2814,18 +2820,22 @@ class Ref(object):
 
         ICM = Ref.CATIA.ActiveDocument
         ICM_1 = ICM.Product
-        ICM_Products = ICM_1.Products
+        ICM_Products_irms = ICM_1.Products
+        ICM_Product = ICM_Products_irms.Item(self.name)
+        ICM_Products = ICM_Product.Products
+
         try:
-            ICM_Products.Remove(self.name)
+            ICM_Products.Remove(self.component_name)
             return 0
         except:
             pass
-        non_const_prods = ['non-constant_41_LH.1', 'non-constant_41_RH.1', 'non-constant_47_LH.1', 'non-constant_47_RH.1']
+        non_const_prods = [self.name + '_' + 'non-constant_41_LH.1', self.name + '_' + 'non-constant_41_RH.1',
+                           self.name + '_' + 'non-constant_47_LH.1', self.name + '_' + 'non-constant_47_RH.1']
         for i in non_const_prods:
             prod = ICM_Products.Item(i)
             prods = prod.Products
             try:
-                prods.Remove(self.name)
+                prods.Remove(self.component_name)
                 break
             except:
                 continue
@@ -2833,24 +2843,29 @@ class Ref(object):
 
 if __name__ == "__main__":
 
-    ecs = Ref('787_9_CAL_ZB167', '0561', 'LH', 240)
-    ecs1 = Ref('787_9_CAL_ZB167', '0609', 'LH', 240)
-    ecs2 = Ref('787_9_CAL_ZB167', '0609+42', 'LH', 240)
-    #ecs3 = Ref('787_9_CAL_ZB167', '0849', 'RH', 240)
+    ecs = Ref('787_9_KAL_ZB656', '0561', 'LH', 240, name='GLS_STA0561-0657_OB_LH_CAI')
+    ecs1 = Ref('787_9_KAL_ZB656', '0609', 'LH', 240, name='GLS_STA0561-0657_OB_LH_CAI')
+    ecs2 = Ref('787_9_KAL_ZB656', '0609+48', 'LH', 240, name='GLS_STA0561-0657_OB_LH_CAI')
+    ecs3 = Ref('787_9_KAL_ZB656', '0609+96', 'LH', 240, name='GLS_STA0561-0657_OB_LH_CAI')
     ecs.build()
     ecs1.build()
     ecs2.build()
-    #ecs3.build()
+    ecs3.build()
     #print ecs.name
-    #ecs.remove_component()
-    #ecs1.remove_component()
-    #ecs2.remove_component()
+    ecs.remove_component()
+    ecs1.remove_component()
+    ecs2.remove_component()
+    ecs3.remove_component()
     #name = ecs.get_ref_name()
     #print name
-    print ecs.name
-    print ecs1.name
-    print ecs2.name
-    #print ecs3.name
+#    print ecs.name
+#    print ecs1.name
+#    print ecs2.name
+#    print ecs3.name
+
+#    ecs4 = Ref('787_9_KAL_ZB656', '0465', 'LH', 240, name='new_instance')
+#    ecs4.build()
+#    ecs4.remove_component()
 
 #    bins = []
 #    ecs = Ref('BRI', '0345', 'LH')

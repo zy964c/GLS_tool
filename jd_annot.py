@@ -118,7 +118,6 @@ def set_capture_dict(carm_pn):
     return capture_dict
 
 
-
 def activate_view(carm_pn, view_name):
 
     catia = win32com.client.Dispatch('catia.application')

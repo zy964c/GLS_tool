@@ -2,12 +2,14 @@ import json
 #import pprint
 from time import gmtime, strftime
 
+
 def json_lookup(pn):
     """
     returns points coordinates
     """
     with open('data\\lights.json') as f:
         data = json.load(f)
+        #print data
         try:
             points_dict = data[pn]
             placeholder = points_dict.values()
@@ -192,7 +194,8 @@ def json_lookup_stonesoup():
         data = json.load(f)
     #f.close()
     return data
-    
+
+
 def json_lookup_components(pn):
     """
     returns points coordinates
@@ -209,7 +212,7 @@ def json_lookup_components(pn):
 
 if __name__ == "__main__":
     
-    print json_lookup('1J5009-100042-0##ALT34')
+    print json_lookup('C519503-523##ALT1')
     print json_lookup_fl('1J5009-100042-0##ALT34')
     print json_lookup_fl_keys('1J5009-100042-0##ALT34')
     print json_lookup_origin('1631-10_STA0561-0657_OB-OMF_LH_CARM')
