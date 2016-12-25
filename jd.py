@@ -187,7 +187,7 @@ class JD(object):
     def check_disconnect_brkt(self, plug_value):
         
         pos = json_lookup_origin(self.part_name)
-        coords = slice(9,12)
+        coords = slice(9, 12)
         wl = 275.0 * 25.4
         s47_sta = (1617.0 + plug_value) * 25.4
         if pos[coords][2] > wl:

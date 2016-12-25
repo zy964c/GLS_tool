@@ -2,6 +2,8 @@ import win32com.client
 import glob
 import sys
 import os
+import Tkinter as tk
+import tkMessageBox
 from external_component import add_carm_as_external_component
 from json_lookup import json_lookup, json_lookup_fl, json_lookup_fl_keys, json_lookup_components, json_lookup_origin
 from jd import JD
@@ -10,8 +12,6 @@ from change_inst_id import change_inst_id
 from axis import make_axis
 from jd_annot import add_jd_annotation, activate_top_prod, access_captures, add_annotation
 from camera import cameras
-import Tkinter as tk
-import tkMessageBox
 from summarize import std_parts
 from json_parsing import parse_ss
 from functions import sta_value
@@ -398,11 +398,11 @@ def scan_parts(collection_parts, instance_id, carm_name, pn, ringposts, plug_val
                     part_name = collection_parts.Item(n).Name
                     print part_name
                     part_pn = collection_parts.Item(n).PartNumber
-                    #if part_pn == '836Z1510-1':
-                    #    brkt_disc_name = part_name
                     if part_pn in ringposts:
-                        create_point(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
-                        create_jd_vectors2(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
+                        for i in ringposts[part_pn]:
+                            print i
+                            create_point(part_name, instance_id, carm_name, pn, i, plug_value)
+                            create_jd_vectors2(part_name, instance_id, carm_name, pn, i, plug_value)
                     create_point(part_name, instance_id, carm_name, pn, part_pn, plug_value)
                     create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn, plug_value)
                     create_point_fl(part_name, pn, part_pn, plug_value)
@@ -601,7 +601,6 @@ class Application(tk.Frame):
                 
             print customer
             print input_config
-            
             selection1.SelectElement2(['AnyObject'], 'CHOOSE IRM', False)
             selected1 = selection1.Item2(1).Value
             pn = 'CA' + str(selected1.PartNumber)[2:]
@@ -611,17 +610,32 @@ class Application(tk.Frame):
             side1 = str(selected1.Name)[:-4]
             side = side1[-2:]
             print side
-            ringposts = {'836Z1510-24': '836Z1510-24_pclamp',
-                         '836Z1510-22': '836Z1510-22_ringpost',
-                         '836Z1510-2': '836Z1510-2_ringpost',
-                         '836Z1510-3': '836Z1510-3_ringpost',
-                         'IC830Z3000-1.3.2': 'IC830Z3000-1.3.2_rp',
-                         'IC830Z3000-1.5': 'IC830Z3000-1.5_rp',
-                         'IC830Z3000-1.10': 'IC830Z3000-1.10_rp',
-                         'IC830Z3000-1.13': 'IC830Z3000-1.13_rp',
-                         'IC830Z3000-1.Twenty_four_arch_LH': 'IC830Z3000-1.Twenty_four_arch_LH_rp',
-                         'IC830Z3000-1.Twenty_four_arch_RH': 'IC830Z3000-1.Twenty_four_arch_RH_rp'}
-            
+            ringposts = {'836Z1510-24': ['836Z1510-24_pclamp'],
+                         '836Z1510-22': ['836Z1510-22_ringpost'],
+                         '836Z1510-2': ['836Z1510-2_ringpost'],
+                         '836Z1510-3': ['836Z1510-3_ringpost'],
+                         'IC830Z3000-1.3.2': ['IC830Z3000-1.3.2_rp'],
+                         'IC830Z3000-1.5': ['IC830Z3000-1.5_rp'],
+                         'IC830Z3000-1.10': ['IC830Z3000-1.10_rp'],
+                         'IC830Z3000-1.13': ['IC830Z3000-1.13_rp'],
+                         'IC830Z3000-1.Twenty_four_arch_LH': ['IC830Z3000-1.Twenty_four_arch_LH_rp'],
+                         'IC830Z3000-1.Twenty_four_arch_RH': ['IC830Z3000-1.Twenty_four_arch_RH_rp'],
+                         'IC830Z3000-1.3.3': ['IC830Z3000-1.3.3_rp', 'IC830Z3000-1.3.3_jd28',
+                                              'IC830Z3000-1.3.3_jd30'],
+                         'IC830Z3000-1.5.1': ['IC830Z3000-1.5.1_rp', 'IC830Z3000-1.5.1_jd28',
+                                              'IC830Z3000-1.5.1_jd30'],
+                         'IC830Z3000-1.10.2': ['IC830Z3000-1.10.2_rp', 'IC830Z3000-1.10.2_jd28',
+                                               'IC830Z3000-1.10.2_jd30'],
+                         'IC830Z3000-1.13.2': ['IC830Z3000-1.13.2_rp', 'IC830Z3000-1.13.2_jd28',
+                                               'IC830Z3000-1.13.2_jd30'],
+                         'IC830Z3000-1.12.2': ['IC830Z3000-1.12.2_jd30'],
+                         'IC830Z3000-1.2.2': ['IC830Z3000-1.2.2_jd30'],
+                         'IC830Z3000-1.9.2': ['IC830Z3000-1.9.2_jd30'],
+                         'IC830Z3000-1.4.2': ['IC830Z3000-1.4.2_jd30'],
+                         'IC830Z3000-1.6.2': ['IC830Z3000-1.6.2_jd30'],
+                         'IC830Z3000-1.11.2': ['IC830Z3000-1.11.2_jd30'],
+                         'IC830Z3000-1.14.2': ['IC830Z3000-1.14.2_jd30']}
+
             product = collection.Item(instance_id)
             product.ApplyWorkMode(2)
             collection1 = product.Products
@@ -638,19 +652,13 @@ class Application(tk.Frame):
             pn = add_carm_as_external_component(pn, instance_id)
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
-            brkt_disc_name = ''
-            for part in xrange(1, collection1.Count):
-                part_name = collection1.Item(part).Name
-                part_pn = collection1.Item(part).PartNumber
-                if part_pn == '836Z1510-1':
-                    brkt_disc_name = part_name
 
             for fairing in input_config:
                 reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value)
                 omf = Ref(customer, fairing[0], side, plug_value, name=instance_id)
                 create_point_sta(pn, omf)
-            # Scan parts for JD points and flagnotes:
 
+            # Scan parts for JD points and flagnotes:
             for prod in xrange(1, collection.Count + 1):
                 if collection.Item(prod).name == instance_id:
                     collection1 = collection.Item(prod).Products
@@ -661,9 +669,7 @@ class Application(tk.Frame):
                             for prod2 in xrange(1, collection2.Count + 1):
                                 cur_name = collection2.Item(prod2).Name
                                 collection2.Item(prod2).Name = parent_name + '_' + cur_name
-
             try:
-                #start_script_local('json_export_console')
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe coord', shell=True)
             except:
                 sys.exit("running external process json_export_console error")
@@ -674,14 +680,12 @@ class Application(tk.Frame):
                 ref.remove_component()
             
             try:
-                #start_script_local('GetPointCoordinates')
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe jd', shell=True)
             except:
                 sys.exit("running external process GetPointCoordinates error")
             add_jd_annotation(pn, input_config[0][0], 31, instance_id)
             access_captures(instance_id, 1)
             try:
-                #start_script_local('GetFlagNoteCoordinates')
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe fn', shell=True)
             except:
                 sys.exit("running external process GetFlagNoteCoordinates error")
