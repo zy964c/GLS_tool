@@ -89,7 +89,7 @@ def parse_ss(layout, plug_value):
     output_name = j['Layout']["MajorModel"] + '_' + j['Layout']["MinorModel"] + '_' + j['Layout']["Customer"] + '_' + j['Layout']["Effectivity"] + '.txt'
     f = open(output_name,'w')
     f.write('#Sec41 LH:\n')
-    for k in range(len(sec41_lh_ordered.values())-1):
+    for k in xrange(len(sec41_lh_ordered.values())-1):
         f.write(sec41_lh_ordered.values()[k] + ', ')
     try:
         f.write((sec41_lh_ordered.values())[-1])
@@ -97,7 +97,7 @@ def parse_ss(layout, plug_value):
         print 'export issue: list index out of range'
     f.write('\n')
     f.write('#Sec41 RH:\n')
-    for t in range(len(sec41_rh_ordered.values())-1):
+    for t in xrange(len(sec41_rh_ordered.values())-1):
         f.write(sec41_rh_ordered.values()[t] + ', ')
     try:
         f.write((sec41_rh_ordered.values())[-1])
@@ -105,7 +105,7 @@ def parse_ss(layout, plug_value):
         print 'export issue: list index out of range'
     f.write('\n')
     f.write('#constant LH:\n')
-    for u in range(len(constant_lh_ordered.values())-1):
+    for u in xrange(len(constant_lh_ordered.values())-1):
         f.write(constant_lh_ordered.values()[u] + ', ')
     try:
         f.write((constant_lh_ordered.values())[-1])
@@ -113,7 +113,7 @@ def parse_ss(layout, plug_value):
         print 'export issue: list index out of range'
     f.write('\n')
     f.write('#constant RH:\n')
-    for p in range(len(constant_rh_ordered.values())-1):
+    for p in xrange(len(constant_rh_ordered.values())-1):
         f.write(constant_rh_ordered.values()[p] + ', ')
     try:
         f.write((constant_rh_ordered.values())[-1])
@@ -121,7 +121,7 @@ def parse_ss(layout, plug_value):
         print 'export issue: list index out of range'
     f.write('\n')
     f.write('#Sec47 LH:\n')
-    for y in range(len(sec47_lh_ordered.values())-1):
+    for y in xrange(len(sec47_lh_ordered.values())-1):
         f.write(sec47_lh_ordered.values()[y] + ', ')
     try:
         f.write((sec47_lh_ordered.values())[-1])
@@ -129,7 +129,7 @@ def parse_ss(layout, plug_value):
         print 'export issue: list index out of range'
     f.write('\n')
     f.write('#Sec47 RH:\n')
-    for w in range(len(sec47_rh_ordered.values())-1):
+    for w in xrange(len(sec47_rh_ordered.values())-1):
         f.write(sec47_rh_ordered.values()[w] + ', ')
     try:
         f.write((sec47_rh_ordered.values())[-1])

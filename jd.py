@@ -42,8 +42,10 @@ class JD(object):
         re_riser_to_light = re.compile('C519503-515##ALT1$')
         re_nofar_light = re.compile('1J5009-3010\d{2}-\d##ALT\d+')
         re_power_supply = re.compile('1X5005-300000-\d##ALT\d+')
-        re_bushing = re.compile('^(IC830Z3000-1.+[^rp]$)')
         re_ringpost = re.compile('^(IC830Z3000-1.+rp)$')
+        re_suddle_clamp = re.compile('^(IC830Z3000-1.+jd31)$')
+        re_ringpost_rail = re.compile('^(IC830Z3000-1.+jd28)$')
+        re_bushing = re.compile('^(IC830Z3000-1[^jd]*.[^rp]$)')
 
         jd_dict_new = {re_ceiling_light: '01',
                        re_noise_seal: '02',
@@ -64,7 +66,9 @@ class JD(object):
                        re_ofcr_ob_latch: '21',
                        re_riser_to_light: '24',
                        re_nofar_light: '26',
-                       re_power_supply: '27'}
+                       re_power_supply: '27',
+                       re_ringpost_rail: '28',
+                       re_suddle_clamp: '31'}
 
         re_list = jd_dict_new.keys()
 
@@ -101,7 +105,7 @@ class JD(object):
         product = collection.Item(self.irm_name)
         collection1 = product.Products
         x_slc = []
-        for n in range(1, collection1.Count+1):
+        for n in xrange(1, collection1.Count+1):
             part_pn = collection1.Item(n).PartNumber
             if '222348' in part_pn or '221348' in part_pn:
                 x_coord = json_lookup_origin(collection1.Item(n).Name)[-3]
@@ -124,7 +128,7 @@ class JD(object):
         x_riser = []
         d_type = {'raisers':'C519503-515', 'sidewall':'1X5005-420100-1'}
         pn_to_find = d_type[detail]
-        for n in range(1, collection1.Count+1):
+        for n in xrange(1, collection1.Count+1):
             part_pn = collection1.Item(n).PartNumber
             if pn_to_find in part_pn:
                 x_coord = json_lookup_origin(collection1.Item(n).Name)[-3]
@@ -207,14 +211,14 @@ class JD(object):
 #    def if_slc(self):
 if __name__ == "__main__":
 
-    irm_name = 'GLS_STA0465-0561_OB_LH_CAI'
+    irm_name = 'GLS_STA1618-1732_OB_LH_CAI'
     catia = win32com.client.Dispatch('catia.application')
     productDocument1 = catia.ActiveDocument
     Product = productDocument1.Product
     collection = Product.Products
     product = collection.Item(irm_name)
     collection1 = product.Products
-    for n in range(1, collection1.Count+1):
+    for n in xrange(1, collection1.Count+1):
         part_pn = collection1.Item(n).PartNumber
         part_name = collection1.Item(n).Name
         j1 = JD(part_pn, irm_name, part_name)

@@ -10,7 +10,7 @@ from jd import JD
 from add_component import Ref
 from change_inst_id import change_inst_id
 from axis import make_axis
-from jd_annot import add_jd_annotation, activate_top_prod, access_captures, add_annotation
+from jd_annot import add_jd_annotation, activate_top_prod, add_annotation
 from camera import cameras
 from summarize import std_parts
 from json_parsing import parse_ss
@@ -233,10 +233,10 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
         return None
 
 
-def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value):
+def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value, bin_order):
 
     global ref_objects
-    ref1 = Ref(customer, sta1, side1, plug_value, name=instance_id1)
+    ref1 = Ref(customer, sta1, side1, plug_value, bin_order, 0, name=instance_id1)
     ref1.build()
     product = collection.Item(instance_id1)
     collection1 = product.Products
@@ -505,15 +505,15 @@ class Application(tk.Frame):
             tk.Label(self.f2, text="BIN SIZE",  font=('Helvetica', 14)).pack(side='left', padx=25, pady=5)
             tk.Entry(self.f3, textvariable=self.sta1, width=10).pack(side='left',  padx=5, pady=5)
             tk.Label(self.f3, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f4, textvariable=self.sta2, width=10).pack(side='left', padx=5, pady=5)
+            tk.Entry(self.f4, textvariable=self.sta2, width=10, state='disabled').pack(side='left', padx=5, pady=5)
             tk.Label(self.f4, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f5, textvariable=self.sta3, width=10).pack(side='left', padx=5, pady=5)
+            tk.Entry(self.f5, textvariable=self.sta3, width=10, state='disabled').pack(side='left', padx=5, pady=5)
             tk.Label(self.f5, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f6, textvariable=self.sta4, width=10).pack(side='left', padx=5, pady=5)
+            tk.Entry(self.f6, textvariable=self.sta4, width=10, state='disabled').pack(side='left', padx=5, pady=5)
             tk.Label(self.f6, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f7, textvariable=self.sta5, width=10).pack(side='left', padx=5, pady=5)
+            tk.Entry(self.f7, textvariable=self.sta5, width=10, state='disabled').pack(side='left', padx=5, pady=5)
             tk.Label(self.f7, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f8, textvariable=self.sta6, width=10).pack(side='left', padx=5, pady=5)
+            tk.Entry(self.f8, textvariable=self.sta6, width=10, state='disabled').pack(side='left', padx=5, pady=5)
             tk.Label(self.f8, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
             apply(tk.OptionMenu, (self.f3, self.size1) + tuple(bin_sizes)).pack(side='left', padx=10, pady=5)
             apply(tk.OptionMenu, (self.f4, self.size2) + tuple(bin_sizes)).pack(side='left', padx=10, pady=5)
@@ -552,7 +552,8 @@ class Application(tk.Frame):
             size5_value = self.size5.get()
             size6_value = self.size6.get()
 
-            sta1_value_x = float(self.sta1.get())
+            sta1 = self.sta1.get()
+            sta1_value_x = sum([float(x) for x in sta1.split('+')])
             sta1_value = sta_value(sta1_value_x*25.4, plug_value)
             self.sta1.set(str(sta1_value))
    
@@ -621,20 +622,20 @@ class Application(tk.Frame):
                          'IC830Z3000-1.Twenty_four_arch_LH': ['IC830Z3000-1.Twenty_four_arch_LH_rp'],
                          'IC830Z3000-1.Twenty_four_arch_RH': ['IC830Z3000-1.Twenty_four_arch_RH_rp'],
                          'IC830Z3000-1.3.3': ['IC830Z3000-1.3.3_rp', 'IC830Z3000-1.3.3_jd28',
-                                              'IC830Z3000-1.3.3_jd30'],
+                                              'IC830Z3000-1.3.3_jd31'],
                          'IC830Z3000-1.5.1': ['IC830Z3000-1.5.1_rp', 'IC830Z3000-1.5.1_jd28',
-                                              'IC830Z3000-1.5.1_jd30'],
+                                              'IC830Z3000-1.5.1_jd31'],
                          'IC830Z3000-1.10.2': ['IC830Z3000-1.10.2_rp', 'IC830Z3000-1.10.2_jd28',
-                                               'IC830Z3000-1.10.2_jd30'],
+                                               'IC830Z3000-1.10.2_jd31'],
                          'IC830Z3000-1.13.2': ['IC830Z3000-1.13.2_rp', 'IC830Z3000-1.13.2_jd28',
-                                               'IC830Z3000-1.13.2_jd30'],
-                         'IC830Z3000-1.12.2': ['IC830Z3000-1.12.2_jd30'],
-                         'IC830Z3000-1.2.2': ['IC830Z3000-1.2.2_jd30'],
-                         'IC830Z3000-1.9.2': ['IC830Z3000-1.9.2_jd30'],
-                         'IC830Z3000-1.4.2': ['IC830Z3000-1.4.2_jd30'],
-                         'IC830Z3000-1.6.2': ['IC830Z3000-1.6.2_jd30'],
-                         'IC830Z3000-1.11.2': ['IC830Z3000-1.11.2_jd30'],
-                         'IC830Z3000-1.14.2': ['IC830Z3000-1.14.2_jd30']}
+                                               'IC830Z3000-1.13.2_jd31'],
+                         'IC830Z3000-1.12.2': ['IC830Z3000-1.12.2_jd31'],
+                         'IC830Z3000-1.2.2': ['IC830Z3000-1.2.2_jd31'],
+                         'IC830Z3000-1.9.2': ['IC830Z3000-1.9.2_jd31'],
+                         'IC830Z3000-1.4.2': ['IC830Z3000-1.4.2_jd31'],
+                         'IC830Z3000-1.6.2': ['IC830Z3000-1.6.2_jd31'],
+                         'IC830Z3000-1.11.2': ['IC830Z3000-1.11.2_jd31'],
+                         'IC830Z3000-1.14.2': ['IC830Z3000-1.14.2_jd31']}
 
             product = collection.Item(instance_id)
             product.ApplyWorkMode(2)
@@ -653,9 +654,11 @@ class Application(tk.Frame):
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
 
+            bin_order = 0
             for fairing in input_config:
-                reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value)
-                omf = Ref(customer, fairing[0], side, plug_value, name=instance_id)
+                bin_order += 1
+                reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value, bin_order)
+                omf = Ref(customer, fairing[0], side, plug_value, bin_order, 0, name=instance_id)
                 create_point_sta(pn, omf)
 
             # Scan parts for JD points and flagnotes:
@@ -684,7 +687,7 @@ class Application(tk.Frame):
             except:
                 sys.exit("running external process GetPointCoordinates error")
             add_jd_annotation(pn, input_config[0][0], 31, instance_id)
-            access_captures(instance_id, 1)
+            # access_captures(instance_id, 1)
             try:
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe fn', shell=True)
             except:

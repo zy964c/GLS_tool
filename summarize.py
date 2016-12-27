@@ -6,7 +6,7 @@ def summarize(carm_pn):
     
     catia = win32com.client.Dispatch('catia.application')
     documents = catia.Documents
-    #for doc in range(1, documents.Count + 1):
+    #for doc in xrange(1, documents.Count + 1):
         #print documents.Item(doc).Name
     productDocument1 = catia.ActiveDocument
     selection1 = productDocument1.Selection
@@ -19,14 +19,14 @@ def summarize(carm_pn):
     
     std_dict = {}
     
-    for hb in range(1, hybridBodies2.Count + 1):
+    for hb in xrange(1, hybridBodies2.Count + 1):
         current_folder = hybridBodies2.Item(hb)
         points = current_folder.HybridBodies
         std_parts = points.Item('Non Instantiated Standard Parts')
         hq = 'Joint Definitions\\' + current_folder.Name + '\\Hole Quantity'
         selection1.Add(std_parts)
         selection1.Search(str('Knowledgeware.Parameter, sel'))
-        for n in range(1, selection1.Count + 1):
+        for n in xrange(1, selection1.Count + 1):
             std_param = selection1.Item2(n).Value
             std_param_text = str(std_param.Value)
             #print std_param_text

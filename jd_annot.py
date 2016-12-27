@@ -21,7 +21,7 @@ def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id):
             sec = '47'
         else:
             sec = 'constant'
-    for jd_number in range(1, jd_number1):
+    for jd_number in xrange(1, jd_number1+1):
         if jd_number > 9:
             jd_number_formatted = str(jd_number)
         else:
@@ -54,7 +54,7 @@ def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id):
         
         points = geoset2.HybridShapes
         fidv = 0
-        for p in range(1, points.Count + 1):
+        for p in xrange(1, points.Count + 1):
             if 'FIDV' in points.Item(p).Name:
                 fidv += 1
         wb = str(catia.GetWorkbenchId())
@@ -113,7 +113,7 @@ def set_capture_dict(carm_pn):
     ann_sets = carm_part.AnnotationSets
     ann_set1 = ann_sets.Item(1)
     Captures1 = ann_set1.Captures
-    for i in range(1, Captures1.Count + 1):
+    for i in xrange(1, Captures1.Count+1):
         capture_dict[Captures1.Item(i).Name] = i
     return capture_dict
 
@@ -208,7 +208,7 @@ def add_annotation(carm_pn, sta_value, instance_id):
     not_s47 = ['1X5005-412(XXX) Alignment Feature', '1X5005-412(XXX) Mounting Feature']
     added_annots = []
     added_fl = ['FL28', 'FL29', 'FL38']
-    for point in range(1, points.Count+1):
+    for point in xrange(1, points.Count+1):
         point_name = points.Item(point).Name
 
         if 'sta' in point_name:
@@ -337,7 +337,7 @@ def add_annotation(carm_pn, sta_value, instance_id):
         selection1.Clear()
         carm_part.Update()
     parameters1 = carm_part.Parameters
-    for param in range(1, 41):
+    for param in xrange(1, 41):
         fl_added = False
         fl_param = parameters1.Item('Annotation Notes:\\FL' + str(param))
         for s in added_fl:
@@ -357,6 +357,6 @@ def add_annotation(carm_pn, sta_value, instance_id):
 if __name__ == "__main__":
 
     input_config = [['1623', 42], ['1665', 24]]
-    #add_jd_annotation('CA836Z1131-18', input_config[0][0], 30, 'GLS_STA0561-0657_OB_LH_CAI')
-    add_annotation('CA836Z1191-41', input_config, 'GLS_STA1618-1732_OB_LH_CAI')
+    add_jd_annotation('CA836Z1191-40', input_config[0][0], 30, 'GLS_STA0561-0657_OB_LH_CAI')
+    #add_annotation('CA836Z1191-41', input_config, 'GLS_STA1618-1732_OB_LH_CAI')
     

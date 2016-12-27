@@ -14,7 +14,7 @@ def make_axis(instance_id, carm_pn):
 
     documents = catia.Documents
     carm = None
-    for i in range(1, documents.Count + 1):
+    for i in xrange(1, documents.Count + 1):
         if carm_pn in documents.Item(i).Name:
             carm = documents.Item(i)
         else:

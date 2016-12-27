@@ -29,7 +29,7 @@ def update_camera(cam_name, omf):
         sight_direction = json_lookup_camera(cam_name)[sight_dir]
         up_direction = json_lookup_camera(cam_name)[up_dir]
         coord_origin_global = omf.get_position_camera(coord_origin)
-        return (coord_origin_global, sight_direction, up_direction)
+        return coord_origin_global, sight_direction, up_direction
 
 def cameras(pn, side, omf):
         
@@ -71,7 +71,7 @@ def cameras(pn, side, omf):
 if __name__ == "__main__":
 
         #pprint(map_camera_names('seed_fairing_lh'))
-        omf1 = Ref('787_9_JAL_ZB424', '1239', 'LH', 240)
+        omf1 = Ref('787_9_JAL_ZB424', '1239', 'LH', 240, 0)
         print update_camera("JD01 Ceiling Light Typical", omf1)
         cameras('CA836Z1661-2', 'LH', omf1)
 

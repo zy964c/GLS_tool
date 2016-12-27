@@ -1,7 +1,9 @@
 import math
 import win32com.client
 import os
+import pdb
 from functions import inch_to_mm, mm_to_inch, sta_value
+from ref_dict import redirect
 
 
 class Ref(object):
@@ -25,14 +27,17 @@ class Ref(object):
 
  #  @staticmethod
 
-    def __init__(self, customer, sta_to_find, side_to_find, plug, path=work_path_lib, name=None, component_name=None):
+    def __init__(self, customer, sta, side, plug, bin_order, irm_ln, path=work_path_lib, name=None,
+                 component_name=None):
         self.plug = plug
         self.path = path
         self.customer = customer
-        self.sta_to_find = sta_to_find
-        self.side_to_find = side_to_find
+        self.sta_to_find = sta
+        self.side_to_find = side
         self.name = name
         self.component_name = component_name
+        self.bin_order = bin_order
+        self.irm_ln = irm_ln
 
     def set_plug(self, new_plug):
         self.plug = new_plug
@@ -51,9 +56,6 @@ class Ref(object):
 
     def set_name(self, new_name):
         self.component_name = new_name
-
-    def get_name(self):
-        return self.name
 
     def converter(self):
 
@@ -162,11 +164,11 @@ class Ref(object):
         ICM_Products_irms = ICM_1.Products
         #debugging
         #print name
-        #for i in range(1, ICM_Products_irms.Count+1):
+        #for i in xrange(1, ICM_Products_irms.Count+1):
         #    print ICM_Products_irms.Item(i).Name
         ICM_Product = ICM_Products_irms.Item(name)
         ICM_Products = ICM_Product.Products
-        bin_breaker = []
+        #bin_breaker = []
         extention = '.CATProduct'
         global sta_value_pairs
         global sta_values_fake
@@ -226,7 +228,7 @@ class Ref(object):
                 btype = 'BIN'
             elif number in bin_twenty_four:
                 stowbin = 'twenty_four'
-                dow_type = 'DWNR_JOG-STRT'
+                #dow_type = 'DWNR_JOG-STRT'
                 btype = 'BIN'
             else:
                 stowbin = False
@@ -1215,6 +1217,9 @@ class Ref(object):
 
                 if self.sta_to_find == sta_current and self.side_to_find == side:
 
+                    if stowbin is True or 'twenty_four':
+                        PartDocPath = redirect(self, PartDocPath)
+                        pdb.set_trace()
 
                     Ref.oFileSys.CopyFile(PartDocPath + extention, PartDocPath1, False)
                     PartDoc = Ref.CATIA.Documents.Open(PartDocPath1)
@@ -2671,7 +2676,7 @@ class Ref(object):
 
 
         sta_pos = []
-        for i in range(3):
+        for i in xrange(3):
             if 'L' in self.side_to_find:
                 sta_pos.append(origin[i] + sta_offset_LH[i])
             elif 'R' in self.side_to_find:
@@ -2781,11 +2786,11 @@ class Ref(object):
 
     def get_position_offset_bushing2(self):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind='bushing2')
+        return self.find_sta(self.get_position(), self.get_position(target='size'), kind='bushing2')
 
     def get_position_camera(self, origin):
 
-        return self.find_sta(self.get_position(), self.get_position(target = 'size'), kind='camera', coord_origin = origin)
+        return self.find_sta(self.get_position(), self.get_position(target='size'), kind='camera', coord_origin=origin)
 
     def get_position(self, target='position'):
 
@@ -2839,29 +2844,22 @@ class Ref(object):
                 break
             except:
                 continue
-            
 
 if __name__ == "__main__":
 
-    ecs = Ref('787_9_KAL_ZB656', '0561', 'LH', 240, name='GLS_STA0561-0657_OB_LH_CAI')
-    ecs1 = Ref('787_9_KAL_ZB656', '0609', 'LH', 240, name='GLS_STA0561-0657_OB_LH_CAI')
-    ecs2 = Ref('787_9_KAL_ZB656', '0609+48', 'LH', 240, name='GLS_STA0561-0657_OB_LH_CAI')
-    ecs3 = Ref('787_9_KAL_ZB656', '0609+96', 'LH', 240, name='GLS_STA0561-0657_OB_LH_CAI')
+    ecs = Ref('787_9_KAL_ZB656', '0465', 'LH', 240, 1, 0, name='GLS_STA0561-0657_OB_LH_CAI')
+    ecs1 = Ref('787_9_KAL_ZB656', '0609', 'LH', 240, 2, 0, name='GLS_STA0561-0657_OB_LH_CAI')
+    ecs2 = Ref('787_9_KAL_ZB656', '0609+48', 'LH', 240, 3, 0, name='GLS_STA0561-0657_OB_LH_CAI')
+    ecs3 = Ref('787_9_KAL_ZB656', '0609+96', 'LH', 240, 4, 0, name='GLS_STA0561-0657_OB_LH_CAI')
     ecs.build()
     ecs1.build()
     ecs2.build()
     ecs3.build()
-    #print ecs.name
     ecs.remove_component()
     ecs1.remove_component()
     ecs2.remove_component()
     ecs3.remove_component()
-    #name = ecs.get_ref_name()
-    #print name
-#    print ecs.name
-#    print ecs1.name
-#    print ecs2.name
-#    print ecs3.name
+    name = ecs.get_ref_name()
 
 #    ecs4 = Ref('787_9_KAL_ZB656', '0465', 'LH', 240, name='new_instance')
 #    ecs4.build()
@@ -2919,7 +2917,7 @@ if __name__ == "__main__":
 #        names = ['sta', '1X5005-412(XXX) Mounting Feature', '1X5005-412(XXX) Alignment Feature',
 #                 'ringpost1', 'ringpost2']
 #        points.extend((sta, mounting, alignment, ringpost1, ringpost2))
-#        for i in range(len(points)):
+#        for i in xrange(len(points)):
 #            try:
 #                point_added = HybridShapeFactory1.AddNewPointCoord(points[i][0], points[i][1], points[i][2])
 #            except:

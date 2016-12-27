@@ -185,7 +185,8 @@ def json_lookup_camera(camera_name):
             return result
         except:
             return None
-            
+
+
 def json_lookup_stonesoup():
     """
     returns points coordinates
@@ -212,7 +213,7 @@ def json_lookup_components(pn):
 
 if __name__ == "__main__":
     
-    print json_lookup('C519503-523##ALT1')
+    print json_lookup('IC830Z3000-1.13.2_jd28')
     print json_lookup_fl('1J5009-100042-0##ALT34')
     print json_lookup_fl_keys('1J5009-100042-0##ALT34')
     print json_lookup_origin('1631-10_STA0561-0657_OB-OMF_LH_CARM')
