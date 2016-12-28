@@ -3,7 +3,7 @@ import win32com.client
 import os
 import pdb
 from functions import inch_to_mm, mm_to_inch, sta_value
-from ref_dict import redirect
+from ringposts import redirect
 
 
 class Ref(object):

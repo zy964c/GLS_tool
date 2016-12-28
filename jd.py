@@ -211,7 +211,7 @@ class JD(object):
 #    def if_slc(self):
 if __name__ == "__main__":
 
-    irm_name = 'GLS_STA1618-1732_OB_LH_CAI'
+    irm_name = 'GLS_STA0561-0657_OB_LH_CAI'
     catia = win32com.client.Dispatch('catia.application')
     productDocument1 = catia.ActiveDocument
     Product = productDocument1.Product
