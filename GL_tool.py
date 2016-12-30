@@ -233,10 +233,10 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
         return None
 
 
-def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value, bin_order):
+def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value, bin_order, irm_len, all_irm_parts):
 
     global ref_objects
-    ref1 = Ref(customer, sta1, side1, plug_value, bin_order, 0, name=instance_id1)
+    ref1 = Ref(customer, sta1, side1, plug_value, bin_order, irm_len, all_irm_parts, name=instance_id1)
     ref1.build()
     product = collection.Item(instance_id1)
     collection1 = product.Products
@@ -276,22 +276,33 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
             selection1.visProperties.SetRealOpacity(255, 0)
             selection1.Clear()
     selection1.Add(ref_part)
-    #selection1.Search(str('Part Design.Body.Name=*Ring Post*REF* & Part Design.Body.Name=*Lower Bushing*REF*, sel'))
-    selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
+
     try:
-            selection1.Copy()
+        if int(sta1) < 465 and bin_order == irm_len:
+            selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
     except:
-            print 'SOLIDS NOT FOUND'
-            ref_objects.append(ref1)
-            return None
+        pass
+    if selection1.Count2 == 0:
+        if '1X5005-210000' in [x[:x.find('##')] for x in all_irm_parts] and bin_order == irm_len:
+            selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
+        elif 'L' in side1:
+            selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*FWD*), sel'))
+        elif 'R' in side1:
+            selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*AFT*), sel'))
+    try:
+        selection1.Copy()
+    except:
+        print 'SOLIDS NOT FOUND'
+        ref_objects.append(ref1)
+        return None
     else:
-            selection1.Clear()
-            carm_part = return_part(instance_id1, part_name1)
-            #KBE = carm_part.GetCustomerFactory("KBEFactory")
-            selection1.Add(carm_part)
-            selection1.PasteSpecial('CATPrtResultWithOutLink')
-            carm_part.Update()
-            selection1.Clear()
+        selection1.Clear()
+        carm_part = return_part(instance_id1, part_name1)
+        #KBE = carm_part.GetCustomerFactory("KBEFactory")
+        selection1.Add(carm_part)
+        selection1.PasteSpecial('CATPrtResultWithOutLink')
+        carm_part.Update()
+        selection1.Clear()
     ref_objects.append(ref1)
 #    ref1.remove_component()
 
@@ -640,16 +651,19 @@ class Application(tk.Frame):
             product = collection.Item(instance_id)
             product.ApplyWorkMode(2)
             collection1 = product.Products
-            collection_rename = product.ReferenceProduct.Products
-            str_to_replace = '1251-2'
-            str_new = '1251-41'
-            for m in xrange(1, collection_rename.Count+1):
-                part1_name = collection_rename.Item(m).Name
-                try:
-                    part1_new_name = part1_name.replace(str_to_replace, str_new)
-                    collection_rename.Item(m).Name = part1_new_name
-                except:
-                    continue
+            all_irm_parts = []
+            for j in xrange(1, collection1.Count + 1):
+                all_irm_parts.append(collection1.Item(j).name)
+            #collection_rename = product.ReferenceProduct.Products
+            #str_to_replace = '1251-2'
+            #str_new = '1251-41'
+            #for m in xrange(1, collection_rename.Count+1):
+            #    part1_name = collection_rename.Item(m).Name
+            #    try:
+            #        part1_new_name = part1_name.replace(str_to_replace, str_new)
+            #        collection_rename.Item(m).Name = part1_new_name
+             #   except:
+             #       continue
             pn = add_carm_as_external_component(pn, instance_id)
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
@@ -657,8 +671,9 @@ class Application(tk.Frame):
             bin_order = 0
             for fairing in input_config:
                 bin_order += 1
-                reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value, bin_order)
-                omf = Ref(customer, fairing[0], side, plug_value, bin_order, 0, name=instance_id)
+                reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value, bin_order,
+                          len(input_config), all_irm_parts)
+                omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts, name=instance_id)
                 create_point_sta(pn, omf)
 
             # Scan parts for JD points and flagnotes:

@@ -71,7 +71,7 @@ def cameras(pn, side, omf):
 if __name__ == "__main__":
 
         #pprint(map_camera_names('seed_fairing_lh'))
-        omf1 = Ref('787_9_JAL_ZB424', '1239', 'LH', 240, 0)
+        omf1 = Ref('787_9_JAL_ZB424', '1239', 'LH', 240, 0, [])
         print update_camera("JD01 Ceiling Light Typical", omf1)
         cameras('CA836Z1661-2', 'LH', omf1)
 

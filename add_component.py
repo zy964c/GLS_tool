@@ -27,7 +27,7 @@ class Ref(object):
 
  #  @staticmethod
 
-    def __init__(self, customer, sta, side, plug, bin_order, irm_ln, path=work_path_lib, name=None,
+    def __init__(self, customer, sta, side, plug, bin_order, irm_ln, all_irm_parts, path=work_path_lib, name=None,
                  component_name=None):
         self.plug = plug
         self.path = path
@@ -38,6 +38,7 @@ class Ref(object):
         self.component_name = component_name
         self.bin_order = bin_order
         self.irm_ln = irm_ln
+        self.all_irm_parts = all_irm_parts
 
     def set_plug(self, new_plug):
         self.plug = new_plug
@@ -1218,8 +1219,8 @@ class Ref(object):
                 if self.sta_to_find == sta_current and self.side_to_find == side:
 
                     if stowbin is True or 'twenty_four':
+                        #pdb.set_trace()
                         PartDocPath = redirect(self, PartDocPath)
-                        pdb.set_trace()
 
                     Ref.oFileSys.CopyFile(PartDocPath + extention, PartDocPath1, False)
                     PartDoc = Ref.CATIA.Documents.Open(PartDocPath1)
@@ -2847,19 +2848,19 @@ class Ref(object):
 
 if __name__ == "__main__":
 
-    ecs = Ref('787_9_KAL_ZB656', '0465', 'LH', 240, 1, 0, name='GLS_STA0561-0657_OB_LH_CAI')
-    ecs1 = Ref('787_9_KAL_ZB656', '0609', 'LH', 240, 2, 0, name='GLS_STA0561-0657_OB_LH_CAI')
-    ecs2 = Ref('787_9_KAL_ZB656', '0609+48', 'LH', 240, 3, 0, name='GLS_STA0561-0657_OB_LH_CAI')
-    ecs3 = Ref('787_9_KAL_ZB656', '0609+96', 'LH', 240, 4, 0, name='GLS_STA0561-0657_OB_LH_CAI')
-    ecs.build()
-    ecs1.build()
-    ecs2.build()
+    #ecs = Ref('787_9_KAL_ZB656', '0465', 'LH', 240, 1, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
+    #ecs1 = Ref('787_9_KAL_ZB656', '0609', 'LH', 240, 2, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
+    #ecs2 = Ref('787_9_KAL_ZB656', '0609+48', 'LH', 240, 3, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
+    ecs3 = Ref('787_9_KAL_ZB656', '0609+96', 'LH', 240, 4, 4, ['1X5005-210000##ALT68'], name='GLS_STA0561-0657_OB_LH_CAI')
+    #ecs.build()
+    #ecs1.build()
+    #ecs2.build()
     ecs3.build()
-    ecs.remove_component()
-    ecs1.remove_component()
-    ecs2.remove_component()
-    ecs3.remove_component()
-    name = ecs.get_ref_name()
+    #ecs.remove_component()
+    #ecs1.remove_component()
+    #ecs2.remove_component()
+    #ecs3.remove_component()
+    #name = ecs.get_ref_name()
 
 #    ecs4 = Ref('787_9_KAL_ZB656', '0465', 'LH', 240, name='new_instance')
 #    ecs4.build()
