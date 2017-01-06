@@ -233,7 +233,7 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
         return None
 
 
-def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value, bin_order, irm_len, all_irm_parts):
+def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value, bin_order, irm_len, all_irm_parts, pn):
 
     global ref_objects
     ref1 = Ref(customer, sta1, side1, plug_value, bin_order, irm_len, all_irm_parts, name=instance_id1)
@@ -257,6 +257,7 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
                         break
             else:
                 continue
+    set_visibility(pn, False)
     ref_part.ApplyWorkMode(2)
     selection1.Add(ref_part)
     selection1.Search(str('(NAME = *' + str(size) + '*IN*REF* + NAME = BACS31H1A*WMA*REF*), sel'))
@@ -277,18 +278,21 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
             selection1.Clear()
     selection1.Add(ref_part)
 
-    try:
-        if int(sta1) < 465 and bin_order == irm_len:
-            selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
-    except:
-        pass
-    if selection1.Count2 == 0:
-        if '1X5005-210000' in [x[:x.find('##')] for x in all_irm_parts] and bin_order == irm_len:
-            selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
-        elif 'L' in side1:
-            selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*FWD*), sel'))
-        elif 'R' in side1:
-            selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*AFT*), sel'))
+    #try:
+    #    if int(sta1) < 465 and bin_order == irm_len:
+    #        selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
+    #except:
+    #    pass
+    #if selection1.Count2 == 0:
+    #    if '1X5005-210000' in [x[:x.find('##')] for x in all_irm_parts] and bin_order == irm_len:
+    #        selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
+    #    elif 'L' in side1:
+    #        selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*FWD*), sel'))
+    #    elif 'R' in side1:
+    #        selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*AFT*), sel'))
+
+    selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
+
     try:
         selection1.Copy()
     except:
@@ -303,6 +307,7 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
         selection1.PasteSpecial('CATPrtResultWithOutLink')
         carm_part.Update()
         selection1.Clear()
+    set_visibility(pn, True)
     ref_objects.append(ref1)
 #    ref1.remove_component()
 
@@ -321,6 +326,17 @@ def deleter():
     selection1.Delete()
     selection1.Clear()
     Product.Update()
+
+
+def set_visibility(carm_pn, action):
+
+    carm_doc = documents.Item(carm_pn + ".CATPart")
+    ann_sets = carm_doc.Part.AnnotationSets
+    ann_set1 = ann_sets.Item(1)
+    Captures1 = ann_set1.Captures
+    for capture in xrange(1, Captures1.Count+1):
+        current_capture = Captures1.Item(capture)
+        current_capture.ManageHideShowBody = action
 
 
 def capture_del(carm_pn, instance_id):
@@ -672,7 +688,7 @@ class Application(tk.Frame):
             for fairing in input_config:
                 bin_order += 1
                 reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value, bin_order,
-                          len(input_config), all_irm_parts)
+                          len(input_config), all_irm_parts, pn)
                 omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts, name=instance_id)
                 create_point_sta(pn, omf)
 
