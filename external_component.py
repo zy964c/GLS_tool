@@ -15,11 +15,13 @@ def add_carm_as_external_component(pn, name):
         collection_irms = product1.Products
         documents = catia.Documents
         for doc in xrange(1, documents.Count+1):
-                if pn + '.CATPart' == documents.Item(doc).Name:
-                    pn = pn + '_' + current_time              
+                print documents.Item(doc).Name
+                if pn in documents.Item(doc).Name:
+                    #print documents.Item(doc).Name
+                    pn = pn + '_' + current_time
         product_to_insert_carm = collection_irms.Item(name)
         children_of_product_to_insert_carm = product_to_insert_carm.Products
-        PartDocPath = current_path + '\seed_fairing_lh.CATPart'
+        PartDocPath = current_path + '\seed.CATPart'
         PartDocPath1 = current_path + '\\' + pn + '.CATPart'
         oFileSys.CopyFile(PartDocPath, PartDocPath1, True)
         PartDoc = catia.Documents.NewFrom(PartDocPath1)
@@ -32,5 +34,5 @@ def add_carm_as_external_component(pn, name):
 
 if __name__ == "__main__":
 
-        new_pn = add_carm_as_external_component('CA836Z1131-42', 'GLS_STA0561-0657_OB_LH_CAI')
+        new_pn = add_carm_as_external_component('IR836Z1131-46', 'GLS_STA0561-0657_OB_LH_CAI')
         print new_pn

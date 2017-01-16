@@ -4,6 +4,7 @@ import sys
 import os
 import Tkinter as tk
 import tkMessageBox
+import pdb
 from external_component import add_carm_as_external_component
 from json_lookup import json_lookup, json_lookup_fl, json_lookup_fl_keys, json_lookup_components, json_lookup_origin
 from jd import JD
@@ -70,6 +71,7 @@ def create_point(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_va
             point_added.RefAxisSystem = reference1
             if hybridBody2 is not None:
                 points = hybridBody2.HybridShapes
+                #pdb.set_trace()
                 if points.Count > 0 and 'FIDV' in points.Item(points.Count).Name:
                     selection1.Add(points.Item(points.Count))
                     selection1.Delete()
@@ -236,13 +238,19 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
 def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value, bin_order, irm_len, all_irm_parts, pn):
 
     global ref_objects
+    #print all_irm_parts
     ref1 = Ref(customer, sta1, side1, plug_value, bin_order, irm_len, all_irm_parts, name=instance_id1)
-    ref1.build()
+    try:
+        ref1.build()
+    except IOError:
+        tkMessageBox.showerror("Fatal error", 'No stowbin data in .json file, choose .txt file instead')
+        root.destroy()
+        sys.exit(0)
+
     product = collection.Item(instance_id1)
     collection1 = product.Products
     for i in xrange(1, collection1.Count + 1):
             prod = collection1.Item(i)
-            print ref1.component_name
             if ref1.component_name in collection1.Item(i).Name:
                 ref_part = collection1.Item(i)
                 break
@@ -257,7 +265,7 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
                         break
             else:
                 continue
-    set_visibility(pn, False)
+    
     ref_part.ApplyWorkMode(2)
     selection1.Add(ref_part)
     selection1.Search(str('(NAME = *' + str(size) + '*IN*REF* + NAME = BACS31H1A*WMA*REF*), sel'))
@@ -291,7 +299,12 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
     #    elif 'R' in side1:
     #        selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*AFT*), sel'))
 
-    selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
+    # For the p-clamp:
+    #if '1X5005-210000-0' in [x[:x.find('##')] for x in all_irm_parts] and bin_order == irm_len:
+    #       selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
+
+    selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF* + Name=*BACS31H1A*Ring*Post*REF*'
+                          ' + Name=*STBP19M14*Wire*Mount*REF*), sel'))
 
     try:
         selection1.Copy()
@@ -301,13 +314,14 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
         return None
     else:
         selection1.Clear()
+        #set_visibility(pn, False)
         carm_part = return_part(instance_id1, part_name1)
         #KBE = carm_part.GetCustomerFactory("KBEFactory")
         selection1.Add(carm_part)
         selection1.PasteSpecial('CATPrtResultWithOutLink')
         carm_part.Update()
         selection1.Clear()
-    set_visibility(pn, True)
+        #set_visibility(pn, True)
     ref_objects.append(ref1)
 #    ref1.remove_component()
 
@@ -359,7 +373,6 @@ def capture_del(carm_pn, instance_id):
     selection1.Clear()
     for capture in xrange(1, Captures1.Count+1):
         current_capture = Captures1.Item(capture)
-        print current_capture.Name
         annots = current_capture.Annotations
         if annots.Count > 0 or current_capture.Name in capture_list:
             continue
@@ -383,7 +396,6 @@ def jd_del(carm_pn):
     selection1.Clear()
     for geoset in xrange(1, hybrid_bodies2.Count+1):
         hb = hybrid_bodies2.Item(geoset)
-        print hb.Name
         points = hb.HybridShapes
         if points.Count > 0:
             continue
@@ -412,24 +424,16 @@ def rename_part_body(carm_pn):
         carm_part.InWorkObject = st_notes
 
 
-def scan_parts(collection_parts, instance_id, carm_name, pn, ringposts, plug_value):
+def scan_parts(collection_parts, instance_id, carm_name, pn, plug_value):
     
     for n in xrange(1, collection_parts.Count+1):
                 next_part = collection_parts.Item(n)
-                print collection_parts.Item(n).Name
-
                 collection_parts2 = next_part.Products
                 if collection_parts2.Count > 0:
-                    scan_parts(collection_parts2, instance_id, carm_name, pn, ringposts, plug_value)
+                    scan_parts(collection_parts2, instance_id, carm_name, pn, plug_value)
                 else:
                     part_name = collection_parts.Item(n).Name
-                    print part_name
                     part_pn = collection_parts.Item(n).PartNumber
-                    if part_pn in ringposts:
-                        for i in ringposts[part_pn]:
-                            print i
-                            create_point(part_name, instance_id, carm_name, pn, i, plug_value)
-                            create_jd_vectors2(part_name, instance_id, carm_name, pn, i, plug_value)
                     create_point(part_name, instance_id, carm_name, pn, part_pn, plug_value)
                     create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn, plug_value)
                     create_point_fl(part_name, pn, part_pn, plug_value)
@@ -580,7 +584,12 @@ class Application(tk.Frame):
             size6_value = self.size6.get()
 
             sta1 = self.sta1.get()
-            sta1_value_x = sum([float(x) for x in sta1.split('+')])
+            try:
+                sta1_value_x = sum([float(x) for x in sta1.split('+')])
+            except ValueError:
+                tkMessageBox.showerror("Fatal error", 'No STA value found for the beggining of IRM. Press OK to exit')
+                root.destroy()
+                sys.exit(0)
             sta1_value = sta_value(sta1_value_x*25.4, plug_value)
             self.sta1.set(str(sta1_value))
    
@@ -612,6 +621,10 @@ class Application(tk.Frame):
             root.update()
 
             customer_txt = self.cus.get()
+            if customer_txt == '':
+                tkMessageBox.showerror("Fatal error", 'No Customer value found. Press OK to exit')
+                root.destroy()
+                sys.exit(0)
             if '.json' in customer_txt:
                 customer_txt = parse_ss(customer_txt, plug_value)
             customer = customer_txt.replace('.txt', '')
@@ -626,10 +639,21 @@ class Application(tk.Frame):
                     if sta[0] != '0' and sta[0] != '1':
                         sta = '0' + sta
                     input_config.append([sta, size])
-                
+
+            if len(input_config) == 0:
+                root.destroy()
+                sys.exit(0)
             print customer
             print input_config
+
+            if tkMessageBox.askokcancel('Choose IRM', 'Press OK to choose an IRM, Cancel to exit') is False:
+                root.destroy()
+                sys.exit(0)
+
             selection1.SelectElement2(['AnyObject'], 'CHOOSE IRM', False)
+            if selection1.Count2 < 1:
+                root.destroy()
+                sys.exit(0)
             selected1 = selection1.Item2(1).Value
             pn = 'CA' + str(selected1.PartNumber)[2:]
             print pn
@@ -638,38 +662,38 @@ class Application(tk.Frame):
             side1 = str(selected1.Name)[:-4]
             side = side1[-2:]
             print side
-            ringposts = {'836Z1510-24': ['836Z1510-24_pclamp'],
-                         '836Z1510-22': ['836Z1510-22_ringpost'],
-                         '836Z1510-2': ['836Z1510-2_ringpost'],
-                         '836Z1510-3': ['836Z1510-3_ringpost'],
-                         'IC830Z3000-1.3.2': ['IC830Z3000-1.3.2_rp'],
-                         'IC830Z3000-1.5': ['IC830Z3000-1.5_rp'],
-                         'IC830Z3000-1.10': ['IC830Z3000-1.10_rp'],
-                         'IC830Z3000-1.13': ['IC830Z3000-1.13_rp'],
-                         'IC830Z3000-1.Twenty_four_arch_LH': ['IC830Z3000-1.Twenty_four_arch_LH_rp'],
-                         'IC830Z3000-1.Twenty_four_arch_RH': ['IC830Z3000-1.Twenty_four_arch_RH_rp'],
-                         'IC830Z3000-1.3.3': ['IC830Z3000-1.3.3_rp', 'IC830Z3000-1.3.3_jd28',
-                                              'IC830Z3000-1.3.3_jd31'],
-                         'IC830Z3000-1.5.1': ['IC830Z3000-1.5.1_rp', 'IC830Z3000-1.5.1_jd28',
-                                              'IC830Z3000-1.5.1_jd31'],
-                         'IC830Z3000-1.10.2': ['IC830Z3000-1.10.2_rp', 'IC830Z3000-1.10.2_jd28',
-                                               'IC830Z3000-1.10.2_jd31'],
-                         'IC830Z3000-1.13.2': ['IC830Z3000-1.13.2_rp', 'IC830Z3000-1.13.2_jd28',
-                                               'IC830Z3000-1.13.2_jd31'],
-                         'IC830Z3000-1.12.2': ['IC830Z3000-1.12.2_jd31'],
-                         'IC830Z3000-1.2.2': ['IC830Z3000-1.2.2_jd31'],
-                         'IC830Z3000-1.9.2': ['IC830Z3000-1.9.2_jd31'],
-                         'IC830Z3000-1.4.2': ['IC830Z3000-1.4.2_jd31'],
-                         'IC830Z3000-1.6.2': ['IC830Z3000-1.6.2_jd31'],
-                         'IC830Z3000-1.11.2': ['IC830Z3000-1.11.2_jd31'],
-                         'IC830Z3000-1.14.2': ['IC830Z3000-1.14.2_jd31']}
+            #ringposts = {'836Z1510-24': ['836Z1510-24_pclamp'],
+            #             '836Z1510-22': ['836Z1510-22_ringpost'],
+            #             '836Z1510-2': ['836Z1510-2_ringpost'],
+            #             '836Z1510-3': ['836Z1510-3_ringpost'],
+            #             'IC830Z3000-1.3.2': ['IC830Z3000-1.3.2_rp'],
+            #             'IC830Z3000-1.5': ['IC830Z3000-1.5_rp'],
+            #             'IC830Z3000-1.10': ['IC830Z3000-1.10_rp'],
+            #             'IC830Z3000-1.13': ['IC830Z3000-1.13_rp'],
+            #             'IC830Z3000-1.Twenty_four_arch_LH': ['IC830Z3000-1.Twenty_four_arch_LH_rp'],
+            #             'IC830Z3000-1.Twenty_four_arch_RH': ['IC830Z3000-1.Twenty_four_arch_RH_rp'],
+            #             'IC830Z3000-1.3.3': ['IC830Z3000-1.3.3_rp', 'IC830Z3000-1.3.3_jd28',
+            #                                  'IC830Z3000-1.3.3_jd31'],
+            #             'IC830Z3000-1.5.1': ['IC830Z3000-1.5.1_rp', 'IC830Z3000-1.5.1_jd28',
+            #                                  'IC830Z3000-1.5.1_jd31'],
+            #             'IC830Z3000-1.10.2': ['IC830Z3000-1.10.2_rp', 'IC830Z3000-1.10.2_jd28',
+            #                                   'IC830Z3000-1.10.2_jd31'],
+            #             'IC830Z3000-1.13.2': ['IC830Z3000-1.13.2_rp', 'IC830Z3000-1.13.2_jd28',
+            #                                   'IC830Z3000-1.13.2_jd31'],
+            #             'IC830Z3000-1.12.2': ['IC830Z3000-1.12.2_jd31'],
+            #             'IC830Z3000-1.2.2': ['IC830Z3000-1.2.2_jd31'],
+            #             'IC830Z3000-1.9.2': ['IC830Z3000-1.9.2_jd31'],
+            #             'IC830Z3000-1.4.2': ['IC830Z3000-1.4.2_jd31'],
+            #             'IC830Z3000-1.6.2': ['IC830Z3000-1.6.2_jd31'],
+            #             'IC830Z3000-1.11.2': ['IC830Z3000-1.11.2_jd31'],
+            #             'IC830Z3000-1.14.2': ['IC830Z3000-1.14.2_jd31']}
 
             product = collection.Item(instance_id)
             product.ApplyWorkMode(2)
             collection1 = product.Products
             all_irm_parts = []
             for j in xrange(1, collection1.Count + 1):
-                all_irm_parts.append(collection1.Item(j).name)
+                all_irm_parts.append(str(collection1.Item(j).PartNumber))
             #collection_rename = product.ReferenceProduct.Products
             #str_to_replace = '1251-2'
             #str_new = '1251-41'
@@ -689,10 +713,10 @@ class Application(tk.Frame):
                 bin_order += 1
                 reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value, bin_order,
                           len(input_config), all_irm_parts, pn)
-                omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts, name=instance_id)
+                omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts,
+                          name=instance_id)
                 create_point_sta(pn, omf)
 
-            # Scan parts for JD points and flagnotes:
             for prod in xrange(1, collection.Count + 1):
                 if collection.Item(prod).name == instance_id:
                     collection1 = collection.Item(prod).Products
@@ -703,13 +727,21 @@ class Application(tk.Frame):
                             for prod2 in xrange(1, collection2.Count + 1):
                                 cur_name = collection2.Item(prod2).Name
                                 collection2.Item(prod2).Name = parent_name + '_' + cur_name
+                                parent_name1 = cur_name
+                                collection3 = collection2.Item(prod2).ReferenceProduct.Products
+                                if collection3.Count > 0:
+                                    for prod3 in xrange(1, collection3.Count + 1):
+                                        cur_name = collection3.Item(prod3).Name
+                                        collection3.Item(prod3).Name = parent_name1 + '_' + cur_name
+
             try:
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe coord', shell=True)
             except:
                 sys.exit("running external process json_export_console error")
 
-            scan_parts(collection1, instance_id, carm_name, pn, ringposts, plug_value)
+            scan_parts(collection1, instance_id, carm_name, pn, plug_value)
 
+            print ref_objects
             for ref in ref_objects:
                 ref.remove_component()
             
@@ -738,6 +770,7 @@ class Application(tk.Frame):
             activate_top_prod()
             Product.Update()
             root.destroy()
+            sys.exit(0)
             
 if __name__ == "__main__":
 
@@ -758,5 +791,6 @@ if __name__ == "__main__":
                                  "Make sure to have CATProduct opened in CATIA before running an application")
 
         root.destroy()
+        sys.exit(0)
     else:
         root.mainloop()

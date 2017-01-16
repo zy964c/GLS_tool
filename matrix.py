@@ -5,16 +5,13 @@ from views import Annotation
 
 
 def axis_coord(point, view):
-    
-    output = []
+
     ac = json_lookup_axis(view)
     x, y, z = symbols("x, y, z")
     A = Matrix([[ac[3], ac[6], ac[9]], [ac[4], ac[7], ac[10]], [ac[5], ac[8], ac[11]]])
     b = Matrix([(point[0] - ac[0]), (point[1] - ac[1]), (point[2] - ac[2])])
     result = linsolve((A, b), [x, y, z])
-    for i in result:
-        for j in i:
-            output.append(j)
+    output = [j for i in result for j in i]
     return output
 
 
@@ -30,9 +27,9 @@ def rotate_vector(angle, vector):
     m1 = Matrix([[math.cos(rad), -1 * math.sin(rad), 0], [math.sin(rad), math.cos(rad), 0], [0, 0, 1]])
     m2 = Matrix([vector[0], vector[1], vector[2]])
     result = m1*m2
-    output = []
-    for i in result:
-        output.append(i)
+    output = [i for i in result]
+    #for i in result:
+    #    output.append(i)
     return output
 
 if __name__ == "__main__":

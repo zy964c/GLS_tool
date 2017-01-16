@@ -146,7 +146,7 @@ class JD(object):
         x_coord_latch_list = [x_coord_latch+(25.4*355.273),
                               x_coord_latch-(25.4*355.273)]
         riser_list = self.get_riser_origins()
-        print riser_list
+        #print riser_list
         if riser_list is not None:
             for riser in riser_list:
                 for latch in x_coord_latch_list:
@@ -157,9 +157,9 @@ class JD(object):
     def check_sidewall(self):
 
         x_coord_sidewall = json_lookup_origin(self.part_name)[-3]
-        print x_coord_sidewall
+        #print x_coord_sidewall
         sidewall_list = self.get_riser_origins('sidewall')
-        print sidewall_list
+        #print sidewall_list
         if sidewall_list is not None:
             sidewall_list.append(x_coord_sidewall)
             sidewall_list.sort()

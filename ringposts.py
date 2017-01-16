@@ -14,7 +14,7 @@ def redirect(ref_instance, name):
         side = 'AFT'
         bushing = '1_AFT'
 
-    if '1X5005-210000' in [x[:x.find('##')] for x in ref_instance.all_irm_parts] and ref_instance.bin_order == ref_instance.irm_ln:
+    if '1X5005-210000-0' in [x[:x.find('##')] for x in ref_instance.all_irm_parts] and ref_instance.bin_order == ref_instance.irm_ln:
         bushing = ''
 
     try:

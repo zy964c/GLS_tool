@@ -3,6 +3,7 @@ from json_lookup import json_lookup_point, json_lookup_flagnote
 from views import AnnotationFactory
 import re
 from matrix import axis_coord, mod
+from pprint import pprint
 
 
 def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id):
@@ -115,6 +116,7 @@ def set_capture_dict(carm_pn):
     Captures1 = ann_set1.Captures
     for i in xrange(1, Captures1.Count+1):
         capture_dict[Captures1.Item(i).Name] = i
+    pprint(capture_dict)
     return capture_dict
 
 
