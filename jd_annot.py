@@ -6,14 +6,14 @@ from matrix import axis_coord, mod
 from pprint import pprint
 
 
-def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id):
+def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id, side):
     """Adds JOINT DEFINITION XX annotation"""
     
     catia = win32com.client.Dispatch('catia.application')
     productDocument1 = catia.ActiveDocument
     selection1 = productDocument1.Selection
     documents = catia.Documents
-    side = instance_id[-6: -4]
+    #side = instance_id[-6: -4]
     sec = 'constant'
     if '+' not in sta_value:
         if float(sta_value) < 465:
@@ -164,14 +164,14 @@ def access_captures(instance_id, number):
     capture1.DisplayCapture()
 
 
-def add_annotation(carm_pn, sta_value, instance_id):
+def add_annotation(carm_pn, sta_value, instance_id, side):
     """Adds annotation"""
     
     catia = win32com.client.Dispatch('catia.application')
     productDocument1 = catia.ActiveDocument
     selection1 = productDocument1.Selection
     documents = catia.Documents
-    side = instance_id[-6: -4]
+    #side = instance_id[-6: -4]
     bin_number = 0
     carm_doc = documents.Item(carm_pn + ".CATPart")
     carm_part = carm_doc.Part
@@ -215,7 +215,7 @@ def add_annotation(carm_pn, sta_value, instance_id):
 
         if 'sta' in point_name:
             annot_text_check = 'sta'
-            annot_text = 'STA ' + sta_value[bin_number][0] + '\n   ' + instance_id[-6] + 'BL 61\n   WL 285\n    REF'
+            annot_text = 'STA ' + sta_value[bin_number][0] + '\n   ' + side[0] + 'BL 61\n   WL 285\n    REF'
             bin_number += 1
         elif '804Z3000' in point_name:
             for r in re_list:
@@ -359,6 +359,6 @@ def add_annotation(carm_pn, sta_value, instance_id):
 if __name__ == "__main__":
 
     input_config = [['1623', 42], ['1665', 24]]
-    add_jd_annotation('CA836Z1191-40', input_config[0][0], 30, 'GLS_STA0561-0657_OB_LH_CAI')
+    add_jd_annotation('CA836Z1191-46_2017_01_17_19_43_34', input_config[0][0], 30, 'GLS_STA0561-0657_OB_LH_CAI')
     #add_annotation('CA836Z1191-41', input_config, 'GLS_STA1618-1732_OB_LH_CAI')
     

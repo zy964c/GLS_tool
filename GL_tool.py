@@ -251,9 +251,16 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
     collection1 = product.Products
     for i in xrange(1, collection1.Count + 1):
             prod = collection1.Item(i)
-            if ref1.component_name in collection1.Item(i).Name:
-                ref_part = collection1.Item(i)
-                break
+            try:
+                print 'ref comp name: ' + ref1.component_name
+                print 'collection item name ' + collection1.Item(i).Name
+                if ref1.component_name in collection1.Item(i).Name:
+                    ref_part = collection1.Item(i)
+                    break
+            except TypeError:
+                tkMessageBox.showerror("Fatal error", 'No Reference geometry found. Check input info. Press OK to exit')
+                root.destroy()
+                sys.exit(0)
             try:
                 collection2 = prod.Products
             except:
@@ -424,16 +431,19 @@ def rename_part_body(carm_pn):
         carm_part.InWorkObject = st_notes
 
 
-def scan_parts(collection_parts, instance_id, carm_name, pn, plug_value):
+def scan_parts(collection_parts, instance_id, carm_name, pn, ringposts, plug_value):
     
     for n in xrange(1, collection_parts.Count+1):
                 next_part = collection_parts.Item(n)
                 collection_parts2 = next_part.Products
                 if collection_parts2.Count > 0:
-                    scan_parts(collection_parts2, instance_id, carm_name, pn, plug_value)
+                    scan_parts(collection_parts2, instance_id, carm_name, pn, ringposts, plug_value)
                 else:
                     part_name = collection_parts.Item(n).Name
                     part_pn = collection_parts.Item(n).PartNumber
+                    if part_pn in ringposts:
+                        create_point(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
+                        create_jd_vectors2(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
                     create_point(part_name, instance_id, carm_name, pn, part_pn, plug_value)
                     create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn, plug_value)
                     create_point_fl(part_name, pn, part_pn, plug_value)
@@ -659,34 +669,17 @@ class Application(tk.Frame):
             print pn
             instance_id = selected1.Name
             print instance_id
-            side1 = str(selected1.Name)[:-4]
-            side = side1[-2:]
+            #side1 = str(selected1.Name)[:-4]
+            #side = side1[-2:]
+            if 'LH' in str(selected1.Name):
+                side = 'LH'
+            elif 'RH' in str(selected1.Name):
+                side = 'RH'
+            else:
+                tkMessageBox.showerror("Fatal error", 'Include LH or RH in IRM instance ID. Press OK to exit')
+                root.destroy()
+                sys.exit(0)
             print side
-            #ringposts = {'836Z1510-24': ['836Z1510-24_pclamp'],
-            #             '836Z1510-22': ['836Z1510-22_ringpost'],
-            #             '836Z1510-2': ['836Z1510-2_ringpost'],
-            #             '836Z1510-3': ['836Z1510-3_ringpost'],
-            #             'IC830Z3000-1.3.2': ['IC830Z3000-1.3.2_rp'],
-            #             'IC830Z3000-1.5': ['IC830Z3000-1.5_rp'],
-            #             'IC830Z3000-1.10': ['IC830Z3000-1.10_rp'],
-            #             'IC830Z3000-1.13': ['IC830Z3000-1.13_rp'],
-            #             'IC830Z3000-1.Twenty_four_arch_LH': ['IC830Z3000-1.Twenty_four_arch_LH_rp'],
-            #             'IC830Z3000-1.Twenty_four_arch_RH': ['IC830Z3000-1.Twenty_four_arch_RH_rp'],
-            #             'IC830Z3000-1.3.3': ['IC830Z3000-1.3.3_rp', 'IC830Z3000-1.3.3_jd28',
-            #                                  'IC830Z3000-1.3.3_jd31'],
-            #             'IC830Z3000-1.5.1': ['IC830Z3000-1.5.1_rp', 'IC830Z3000-1.5.1_jd28',
-            #                                  'IC830Z3000-1.5.1_jd31'],
-            #             'IC830Z3000-1.10.2': ['IC830Z3000-1.10.2_rp', 'IC830Z3000-1.10.2_jd28',
-            #                                   'IC830Z3000-1.10.2_jd31'],
-            #             'IC830Z3000-1.13.2': ['IC830Z3000-1.13.2_rp', 'IC830Z3000-1.13.2_jd28',
-            #                                   'IC830Z3000-1.13.2_jd31'],
-            #             'IC830Z3000-1.12.2': ['IC830Z3000-1.12.2_jd31'],
-            #             'IC830Z3000-1.2.2': ['IC830Z3000-1.2.2_jd31'],
-            #             'IC830Z3000-1.9.2': ['IC830Z3000-1.9.2_jd31'],
-            #             'IC830Z3000-1.4.2': ['IC830Z3000-1.4.2_jd31'],
-            #             'IC830Z3000-1.6.2': ['IC830Z3000-1.6.2_jd31'],
-            #             'IC830Z3000-1.11.2': ['IC830Z3000-1.11.2_jd31'],
-            #             'IC830Z3000-1.14.2': ['IC830Z3000-1.14.2_jd31']}
 
             product = collection.Item(instance_id)
             product.ApplyWorkMode(2)
@@ -738,8 +731,11 @@ class Application(tk.Frame):
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe coord', shell=True)
             except:
                 sys.exit("running external process json_export_console error")
-
-            scan_parts(collection1, instance_id, carm_name, pn, plug_value)
+            ringposts = {'836Z1510-24': '836Z1510-24_pclamp',
+                         '836Z1510-22': '836Z1510-22_ringpost',
+                         '836Z1510-2': '836Z1510-2_ringpost',
+                         '836Z1510-3': '836Z1510-3_ringpost'}
+            scan_parts(collection1, instance_id, carm_name, pn, ringposts, plug_value)
 
             print ref_objects
             for ref in ref_objects:
@@ -749,13 +745,13 @@ class Application(tk.Frame):
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe jd', shell=True)
             except:
                 sys.exit("running external process GetPointCoordinates error")
-            add_jd_annotation(pn, input_config[0][0], 31, instance_id)
+            add_jd_annotation(pn, input_config[0][0], 31, instance_id, side)
             # access_captures(instance_id, 1)
             try:
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe fn', shell=True)
             except:
                 sys.exit("running external process GetFlagNoteCoordinates error")
-            add_annotation(pn, input_config, instance_id)
+            add_annotation(pn, input_config, instance_id, side)
             capture_del(pn, instance_id)
             jd_del(pn)
             std_parts(pn)
@@ -791,6 +787,6 @@ if __name__ == "__main__":
                                  "Make sure to have CATProduct opened in CATIA before running an application")
 
         root.destroy()
-        sys.exit(0)
+        sys.exit('finished successfully')
     else:
         root.mainloop()
