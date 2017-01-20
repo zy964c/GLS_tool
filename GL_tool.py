@@ -4,6 +4,7 @@ import sys
 import os
 import Tkinter as tk
 import tkMessageBox
+#import rotate
 import pdb
 from external_component import add_carm_as_external_component
 from json_lookup import json_lookup, json_lookup_fl, json_lookup_fl_keys, json_lookup_components, json_lookup_origin
@@ -17,6 +18,7 @@ from summarize import std_parts
 from json_parsing import parse_ss
 from functions import sta_value
 from subprocess import check_call
+
 
 ref_objects = []
 
@@ -697,7 +699,8 @@ class Application(tk.Frame):
             #        collection_rename.Item(m).Name = part1_new_name
              #   except:
              #       continue
-            pn = add_carm_as_external_component(pn, instance_id)
+            added_carm = add_carm_as_external_component(pn, instance_id)
+            pn = added_carm[0]
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
 
@@ -745,6 +748,7 @@ class Application(tk.Frame):
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe jd', shell=True)
             except:
                 sys.exit("running external process GetPointCoordinates error")
+
             add_jd_annotation(pn, input_config[0][0], 31, instance_id, side)
             # access_captures(instance_id, 1)
             try:
@@ -754,6 +758,7 @@ class Application(tk.Frame):
             add_annotation(pn, input_config, instance_id, side)
             capture_del(pn, instance_id)
             jd_del(pn)
+            #rotate.add_std_ref(pn, instance_id)
             std_parts(pn)
             cameras(pn, side, omf)
             rename_part_body(pn)
