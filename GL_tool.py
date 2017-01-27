@@ -4,7 +4,7 @@ import sys
 import os
 import Tkinter as tk
 import tkMessageBox
-#import rotate
+import rotate
 import pdb
 from external_component import add_carm_as_external_component
 from json_lookup import json_lookup, json_lookup_fl, json_lookup_fl_keys, json_lookup_components, json_lookup_origin
@@ -758,7 +758,6 @@ class Application(tk.Frame):
             add_annotation(pn, input_config, instance_id, side)
             capture_del(pn, instance_id)
             jd_del(pn)
-            #rotate.add_std_ref(pn, instance_id)
             std_parts(pn)
             cameras(pn, side, omf)
             rename_part_body(pn)
@@ -769,6 +768,7 @@ class Application(tk.Frame):
             #    selection1.visProperties.SetShow(1)
             #    selection1.Clear()
             activate_top_prod()
+            rotate.add_std_ref1(pn, instance_id, documents, selection1, collection1)
             Product.Update()
             root.destroy()
             sys.exit(0)

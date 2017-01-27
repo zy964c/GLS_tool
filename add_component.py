@@ -62,7 +62,7 @@ class Ref(object):
 
         f = open(str(self.customer) + '.txt')
         s_raw = f.readlines()
-        #print s_raw
+        print s_raw
         s_all = []
         state1 = True
         for element in s_raw:
@@ -73,12 +73,14 @@ class Ref(object):
                 state1 = True
                 continue
             elif '#' not in element and state1 is True:
+                element = element.rstrip()
                 s_all.append(element.replace(' ', '').replace('fairing', '1').replace('premium', '2')
-                             .replace('prem', '2').replace('EXT', '3').replace('\r\n', '').split(","))
+                             .replace('prem', '2').replace('EXT', '3').split(","))
+
             else:
                 continue
 
-        #print s_all
+        print s_all
 
         s1 = s_all[0]
         s2 = s_all[1]
@@ -2852,15 +2854,18 @@ if __name__ == "__main__":
     #ecs = Ref('787_9_KAL_ZB656', '0465', 'LH', 240, 1, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
     #ecs1 = Ref('787_9_KAL_ZB656', '0609', 'LH', 240, 2, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
     #ecs2 = Ref('787_9_KAL_ZB656', '0609+48', 'LH', 240, 3, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
-    ecs3 = Ref('787_9_KAL_ZB656', '1623', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='GLS_STA0561-0657_OB_LH_CAI')
+    #ecs3 = Ref('787_9_KAL_ZB656', '0393', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1')
+    ecs3 = Ref('787_9_KAL_ZB656', '0417', 'LH', 240, 2, 2, ['1X5005-210000-0##ALT68'], name='Product1.1')
+    ecs4 = Ref('787_9_KAL_ZB656', '0393', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1')
     #ecs.build()
     #ecs1.build()
     #ecs2.build()
     ecs3.build()
+    ecs4.build()
     #ecs.remove_component()
     #ecs1.remove_component()
     #ecs2.remove_component()
-    ecs3.remove_component()
+    #ecs3.remove_component()
     #name = ecs.get_ref_name()
 
 #    ecs4 = Ref('787_9_KAL_ZB656', '0465', 'LH', 240, name='new_instance')

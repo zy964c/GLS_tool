@@ -6,6 +6,7 @@ def redirect(ref_instance, name):
                 'RH': {'0465': 'AFT', '0693': 'FWD', '0699': 'FWD', '0849': 'FWD',
                 '1041': 'FWD', '1365': 'AFT', '1473': 'FWD', '1569': 'FWD',
                 '1618+47': 'FWD', '1623': 'AFT'}}
+    reverse_side = {'FWD': 'AFT', 'AFT': 'FWD'}
 
     bushing = '1_FWD'
     side = 'FWD'
@@ -25,7 +26,7 @@ def redirect(ref_instance, name):
         if sta_check < 465 and ref_instance.bin_order == 1:
             return name + '_' + side + '_' + bushing
         elif sta_check < 465 and ref_instance.bin_order == ref_instance.irm_ln:
-            return name + '_' + side
+            return name + '_' + reverse_side[side]
 
     try:
         name = name + '_' + sta_dict[ref_instance.side_to_find][ref_instance.sta_to_find]
