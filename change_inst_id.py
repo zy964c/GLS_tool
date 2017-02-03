@@ -17,5 +17,5 @@ def change_inst_id(pn, instance_id):
 
 if __name__ == "__main__":
 
-    change_inst_id('CA836Z1671-3', 'GLS_STA1293-1401+096_OB-ODF_LH_CAI')
+    change_inst_id('CA836Z1791-2', 'GLS_STA1618-1732_OB-OMF_RH_CAI')
 

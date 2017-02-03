@@ -46,7 +46,7 @@ def cameras(pn, side, omf):
         for i in xrange(1, cameras.Count+1):
             camera = cameras.Item(i)
             viewpoint = camera.Viewpoint3D
-            print camera.Name
+            #print camera.Name
             if camera.Name == 'Wire Routing Typical':
                 continue
             viewpoint_data = update_camera(camera.Name, omf)
@@ -62,7 +62,7 @@ def cameras(pn, side, omf):
             up_dir_rotated = [float(buffer(str(up_dir_rotated[0]))),
                               float(buffer(str(up_dir_rotated[1]))),
                               float(buffer(str(up_dir_rotated[2])))]
-            print cam_coord
+            #print cam_coord
             viewpoint.PutOrigin(cam_coord)
             viewpoint.PutSightDirection(sight_dir_rotated)
             viewpoint.PutUpDirection(up_dir_rotated)

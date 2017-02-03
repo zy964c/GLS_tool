@@ -29,7 +29,7 @@ def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id, side):
             jd_number_formatted = '0' + str(jd_number)
         annot_text = 'JOINT DEFINITION ' + jd_number_formatted
         geoset_name = 'Joint Definition ' + jd_number_formatted
-        print geoset_name
+        #print geoset_name
         carm_doc = documents.Item(carm_pn + ".CATPart")
         carm_part = carm_doc.Part
         KBE = carm_part.GetCustomerFactory("BOEAnntFactory")
@@ -116,7 +116,7 @@ def set_capture_dict(carm_pn):
     Captures1 = ann_set1.Captures
     for i in xrange(1, Captures1.Count+1):
         capture_dict[Captures1.Item(i).Name] = i
-    pprint(capture_dict)
+    #pprint(capture_dict)
     return capture_dict
 
 
@@ -270,8 +270,8 @@ def add_annotation(carm_pn, sta_value, instance_id, side):
         reference1 = carm_part.CreateReferenceFromObject(points.Item(point))
         userSurface1 = userSurfaces1.Generate(reference1)
         coordinates = json_lookup_flagnote(carm_part.name, point_name)
-        print point_name + ':'
-        print coordinates
+        #print point_name + ':'
+        #print coordinates
         if 'marker' in annot_text_check:
             offset = [(2.5 * 25.4), (3.5 * 25.4)]
         elif 'sta' in annot_text_check:
@@ -298,10 +298,10 @@ def add_annotation(carm_pn, sta_value, instance_id, side):
                                   
         else:
             annotation1 = annotationFactory1.CreateEvoluateText(userSurface1,
-                                                            coord_new[0],
-                                                            coord_new[1],
-                                                            coord_new[2],
-                                                            True)
+                                                                coord_new[0],
+                                                                coord_new[1],
+                                                                coord_new[2],
+                                                                True)
         #annotation1 = KBE.CreateTextWithLeader(points.Item(point), view_to_activate, annot_text, 20, -10, -1*coordinates[0])
         #annotation1 = KBE.CreateFlagNoteAnnotation(annotationFactory1, annot_text, 2)
         Captures1 = ann_set1.Captures

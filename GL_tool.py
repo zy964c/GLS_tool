@@ -5,7 +5,7 @@ import os
 import Tkinter as tk
 import tkMessageBox
 import rotate
-import pdb
+#import pdb
 from external_component import add_carm_as_external_component
 from json_lookup import json_lookup, json_lookup_fl, json_lookup_fl_keys, json_lookup_components, json_lookup_origin
 from jd import JD
@@ -190,7 +190,7 @@ def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn, p
             try:
                 point = hs.Item(hs.Count)
             except:
-                print 'No points in JD'
+                print 'No points found in Joint Definition ' + hybridBody2.Name
                 return None
         else:
             return None
@@ -229,7 +229,7 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
     hybridBodies2 = hybridBody1.HybridBodies
     joint = JD(part_pn, instance_id1, part_name1, plug_value)
     jd_name = joint.get_name()
-    print jd_name
+    #print jd_name
     if jd_name is not None:
         hybridBody2 = hybridBodies2.Item('Joint Definition ' + jd_name)
         return hybridBody2
@@ -254,8 +254,8 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
     for i in xrange(1, collection1.Count + 1):
             prod = collection1.Item(i)
             try:
-                print 'ref comp name: ' + ref1.component_name
-                print 'collection item name ' + collection1.Item(i).Name
+                #print 'ref comp name: ' + ref1.component_name
+                #print 'collection item name ' + collection1.Item(i).Name
                 if ref1.component_name in collection1.Item(i).Name:
                     ref_part = collection1.Item(i)
                     break
@@ -313,12 +313,12 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
     #       selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF*), sel'))
 
     selection1.Search(str('(Name=*Ring*Post*REF* + Name=*Lower*Bushing*REF* + Name=*BACS31H1A*Ring*Post*REF*'
-                          ' + Name=*STBP19M14*Wire*Mount*REF*), sel'))
+                          ' + Name=*STBP19M14*Wire*Mount*REF* + Name=*BACS18BA3DD14P*Spacer*REF*), sel'))
 
     try:
         selection1.Copy()
     except:
-        print 'SOLIDS NOT FOUND'
+        print 'Info: No solids found for ' + ref_part.Name
         ref_objects.append(ref1)
         return None
     else:
@@ -454,17 +454,20 @@ def scan_parts(collection_parts, instance_id, carm_name, pn, ringposts, plug_val
 class Application(tk.Frame):
         def __init__(self, root):
             tk.Frame.__init__(self, root)
-            root.geometry("300x500")
-            root.title("GLS")
+            root.geometry("350x500")
+            root.title("GLS CARM Automation")
 
             self.parent_frame = tk.Frame(bd=3, relief='ridge')
             self.parent_frame_top = tk.Frame()
             self.parent_frame_minor = tk.Frame(self.parent_frame_top, bd=3, relief='ridge')
             self.parent_frame_type = tk.Frame(self.parent_frame_top, bd=3, relief='ridge')
+            self.parent_frame_side = tk.Frame(self.parent_frame_top, bd=3, relief='ridge')
             self.f0 = tk.Frame(self.parent_frame_minor)
             self.f01 = tk.Frame(self.parent_frame_minor)
             self.f10 = tk.Frame(self.parent_frame_type)
             self.f11 = tk.Frame(self.parent_frame_type)
+            self.f20 = tk.Frame(self.parent_frame_side)
+            self.f21 = tk.Frame(self.parent_frame_side)
             self.f1 = tk.Frame()
             self.f2 = tk.Frame(self.parent_frame)
             self.f3 = tk.Frame(self.parent_frame)
@@ -478,11 +481,15 @@ class Application(tk.Frame):
             self.f1.pack(fill='both', expand=1, side='top')
             self.parent_frame_top.pack(fill='both', expand=1, side='top', padx=10, pady=5)
             self.parent_frame_minor.pack(fill='both', expand=1, side='left', padx=10, pady=5)
+            self.parent_frame_side.pack(fill='both', expand=1, side='left', padx=10, pady=5)
             self.f0.pack(fill='both', expand=1, side='top')
             self.f01.pack(fill='both', expand=1, side='top')
             self.parent_frame_type.pack(fill='both', expand=1, side='left', padx=10, pady=5)
             self.f10.pack(fill='both', expand=1, side='top')
             self.f11.pack(fill='both', expand=1, side='top')
+            self.parent_frame_side.pack(fill='both', expand=1, side='left', padx=10, pady=5)
+            self.f20.pack(fill='both', expand=1, side='top')
+            self.f21.pack(fill='both', expand=1, side='top')
             self.parent_frame.pack(fill='both', expand=1, side='top', padx=10, pady=5)
             self.f2.pack(side='top')
             self.f3.pack(side='top')
@@ -508,9 +515,11 @@ class Application(tk.Frame):
             self.size6 = tk.IntVar()
             self.plug = tk.IntVar()
             self.bin_type = tk.IntVar()
+            self.irm_side = tk.IntVar()
 
             self.plug.set(240)
             self.bin_type.set(1)
+            self.irm_side.set(1)
             self.size1.set(0)
             self.size2.set(0)
             self.size3.set(0)
@@ -540,24 +549,26 @@ class Application(tk.Frame):
 #            cb.current(1)
 #            cb.pack()
 
-            tk.Radiobutton(self.f0, text="787-9", font=('Helvetica', 12), variable=self.plug, value=240).pack(side='left', padx=5, pady=5)
-            tk.Radiobutton(self.f10, text="OUTBD", font=('Helvetica', 12), variable=self.bin_type, value=1).pack(side='left', padx=5, pady=5)
-            tk.Radiobutton(self.f11, text="CTR", font=('Helvetica', 12), variable=self.bin_type, value=2).pack(side='left', padx=5, pady=5)
-            tk.Label(self.f1, text="CUSTOMER:", font=('Helvetica', 14)).pack(side='left', padx=5)
-            tk.Label(self.f2, text="STA", font=('Helvetica', 14)).pack(side='left', padx=50, pady=5)
-            tk.Label(self.f2, text="BIN SIZE",  font=('Helvetica', 14)).pack(side='left', padx=25, pady=5)
-            tk.Entry(self.f3, textvariable=self.sta1, width=10).pack(side='left',  padx=5, pady=5)
-            tk.Label(self.f3, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f4, textvariable=self.sta2, width=10, state='disabled').pack(side='left', padx=5, pady=5)
-            tk.Label(self.f4, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f5, textvariable=self.sta3, width=10, state='disabled').pack(side='left', padx=5, pady=5)
-            tk.Label(self.f5, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f6, textvariable=self.sta4, width=10, state='disabled').pack(side='left', padx=5, pady=5)
-            tk.Label(self.f6, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f7, textvariable=self.sta5, width=10, state='disabled').pack(side='left', padx=5, pady=5)
-            tk.Label(self.f7, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
-            tk.Entry(self.f8, textvariable=self.sta6, width=10, state='disabled').pack(side='left', padx=5, pady=5)
-            tk.Label(self.f8, text="-", font=('Helvetica', 14)).pack(side='left', padx=15)
+            tk.Radiobutton(self.f0, text="787-9", font=('Helvetica', 11), variable=self.plug, value=240).pack(side='left', padx=5, pady=5)
+            tk.Radiobutton(self.f10, text="OUTBD", font=('Helvetica', 11), variable=self.bin_type, value=1).pack(side='left', padx=5, pady=5)
+            tk.Radiobutton(self.f11, text="CTR", font=('Helvetica', 11), variable=self.bin_type, state='disabled', value=2).pack(side='left', padx=5, pady=5)
+            tk.Label(self.f1, text="CUSTOMER:", font=('Helvetica', 13)).pack(side='left', padx=5)
+            tk.Radiobutton(self.f20, text="LH", font=('Helvetica', 11), variable=self.irm_side, value=1).pack(side='left', padx=5, pady=5)
+            tk.Radiobutton(self.f21, text="RH", font=('Helvetica', 11), variable=self.irm_side, value=2).pack(side='left', padx=5, pady=5)
+            tk.Label(self.f2, text="STA", font=('Helvetica', 13)).pack(side='left', padx=50, pady=5)
+            tk.Label(self.f2, text="BIN SIZE",  font=('Helvetica', 13)).pack(side='left', padx=25, pady=5)
+            tk.Entry(self.f3, textvariable=self.sta1, width=15).pack(side='left',  padx=5, pady=5)
+            tk.Label(self.f3, text="-", font=('Helvetica', 13)).pack(side='left', padx=15)
+            tk.Entry(self.f4, textvariable=self.sta2, width=15, state='disabled').pack(side='left', padx=5, pady=5)
+            tk.Label(self.f4, text="-", font=('Helvetica', 13)).pack(side='left', padx=15)
+            tk.Entry(self.f5, textvariable=self.sta3, width=15, state='disabled').pack(side='left', padx=5, pady=5)
+            tk.Label(self.f5, text="-", font=('Helvetica', 13)).pack(side='left', padx=15)
+            tk.Entry(self.f6, textvariable=self.sta4, width=15, state='disabled').pack(side='left', padx=5, pady=5)
+            tk.Label(self.f6, text="-", font=('Helvetica', 13)).pack(side='left', padx=15)
+            tk.Entry(self.f7, textvariable=self.sta5, width=15, state='disabled').pack(side='left', padx=5, pady=5)
+            tk.Label(self.f7, text="-", font=('Helvetica', 13)).pack(side='left', padx=15)
+            tk.Entry(self.f8, textvariable=self.sta6, width=15, state='disabled').pack(side='left', padx=5, pady=5)
+            tk.Label(self.f8, text="-", font=('Helvetica', 13)).pack(side='left', padx=15)
             apply(tk.OptionMenu, (self.f3, self.size1) + tuple(bin_sizes)).pack(side='left', padx=10, pady=5)
             apply(tk.OptionMenu, (self.f4, self.size2) + tuple(bin_sizes)).pack(side='left', padx=10, pady=5)
             apply(tk.OptionMenu, (self.f5, self.size3) + tuple(bin_sizes)).pack(side='left', padx=10, pady=5)
@@ -565,8 +576,8 @@ class Application(tk.Frame):
             apply(tk.OptionMenu, (self.f7, self.size5) + tuple(bin_sizes)).pack(side='left', padx=10, pady=5)
             apply(tk.OptionMenu, (self.f8, self.size6) + tuple(bin_sizes)).pack(side='left', padx=10, pady=5)
             apply(tk.OptionMenu, (self.f1, self.cus) + tuple(customers)).pack(side='left', padx=5, pady=0)
-            tk.Radiobutton(self.f01, text="787-10", font=('Helvetica', 12), variable=self.plug, value=456).pack(side='left', padx=5, pady=5)
-            tk.Button(self.f9, text="SUBMIT", command=self.start,  font=('Helvetica', 14)).pack()
+            tk.Radiobutton(self.f01, text="787-10", font=('Helvetica', 11), variable=self.plug, value=456).pack(side='left', padx=5, pady=5)
+            tk.Button(self.f9, text="SUBMIT", command=self.start,  font=('Helvetica', 13)).pack()
         # need to run progressbar in another thread    
 #        def progress_start(self):
 #
@@ -583,7 +594,7 @@ class Application(tk.Frame):
         def start(self):
 
             global ref_objects
-
+            print 'reading input'
             plug_value = self.plug.get()
             input_config = []
             work_path_folder = os.getcwd()
@@ -594,6 +605,7 @@ class Application(tk.Frame):
             size4_value = self.size4.get()
             size5_value = self.size5.get()
             size6_value = self.size6.get()
+            irm_side_value = self.irm_side.get()
 
             sta1 = self.sta1.get()
             try:
@@ -655,8 +667,8 @@ class Application(tk.Frame):
             if len(input_config) == 0:
                 root.destroy()
                 sys.exit(0)
-            print customer
-            print input_config
+            #print customer
+            print 'input: ' + str(input_config)
 
             if tkMessageBox.askokcancel('Choose IRM', 'Press OK to choose an IRM, Cancel to exit') is False:
                 root.destroy()
@@ -668,22 +680,30 @@ class Application(tk.Frame):
                 sys.exit(0)
             selected1 = selection1.Item2(1).Value
             pn = 'CA' + str(selected1.PartNumber)[2:]
-            print pn
+            #print pn
             instance_id = selected1.Name
-            print instance_id
+            #print instance_id
             #side1 = str(selected1.Name)[:-4]
             #side = side1[-2:]
-            if 'LH' in str(selected1.Name):
+            #if 'LH' in str(selected1.Name):
+            #    side = 'LH'
+            #elif 'RH' in str(selected1.Name):
+            #    side = 'RH'
+            #else:
+            #    tkMessageBox.showerror("Fatal error", 'Include LH or RH in IRM instance ID. Press OK to exit')
+            #    root.destroy()
+            #    sys.exit(0)
+            #print side
+            if irm_side_value == 1:
                 side = 'LH'
-            elif 'RH' in str(selected1.Name):
+            elif irm_side_value == 2:
                 side = 'RH'
-            else:
-                tkMessageBox.showerror("Fatal error", 'Include LH or RH in IRM instance ID. Press OK to exit')
+            try:
+                product = collection.Item(instance_id)
+            except:
+                tkMessageBox.showwarning('Error', "You have not choose a product")
                 root.destroy()
-                sys.exit(0)
-            print side
-
-            product = collection.Item(instance_id)
+                sys.exit()
             product.ApplyWorkMode(2)
             collection1 = product.Products
             all_irm_parts = []
@@ -699,11 +719,14 @@ class Application(tk.Frame):
             #        collection_rename.Item(m).Name = part1_new_name
              #   except:
              #       continue
+            print 'adding CARM to IRM'
             added_carm = add_carm_as_external_component(pn, instance_id)
             pn = added_carm[0]
+            #print pn
+            #pdb.set_trace()
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
-
+            print 'adding reference geometry of stowbins and creating STA bubbles'
             bin_order = 0
             for fairing in input_config:
                 bin_order += 1
@@ -712,7 +735,7 @@ class Application(tk.Frame):
                 omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts,
                           name=instance_id)
                 create_point_sta(pn, omf)
-
+            print 'renaming reference geometry parts'
             for prod in xrange(1, collection.Count + 1):
                 if collection.Item(prod).name == instance_id:
                     collection1 = collection.Item(prod).Products
@@ -729,37 +752,46 @@ class Application(tk.Frame):
                                     for prod3 in xrange(1, collection3.Count + 1):
                                         cur_name = collection3.Item(prod3).Name
                                         collection3.Item(prod3).Name = parent_name1 + '_' + cur_name
-
+            print 'writing origin coordinates of all parts in catia active document to the text file'
             try:
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe coord', shell=True)
             except:
                 sys.exit("running external process json_export_console error")
+            print 'scanning child instances for the jd and flagnote points'
             ringposts = {'836Z1510-24': '836Z1510-24_pclamp',
                          '836Z1510-22': '836Z1510-22_ringpost',
                          '836Z1510-2': '836Z1510-2_ringpost',
                          '836Z1510-3': '836Z1510-3_ringpost'}
             scan_parts(collection1, instance_id, carm_name, pn, ringposts, plug_value)
 
-            print ref_objects
+            #print ref_objects
+            print 'removing reference geometry parts'
             for ref in ref_objects:
                 ref.remove_component()
-            
+            print 'writing coordinates of all jd points to the text file'
             try:
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe jd', shell=True)
             except:
                 sys.exit("running external process GetPointCoordinates error")
-
+            print 'creating JD annotations'
             add_jd_annotation(pn, input_config[0][0], 31, instance_id, side)
             # access_captures(instance_id, 1)
+            print 'writing coordinates of all flagnote points to the text file'
             try:
                 check_call('cd ' + work_path_folder + ' & ' + 'Helpers.exe fn', shell=True)
             except:
                 sys.exit("running external process GetFlagNoteCoordinates error")
+            print 'creating flagnote annotations'
             add_annotation(pn, input_config, instance_id, side)
+            print 'removing not used captures'
             capture_del(pn, instance_id)
+            print 'removing not used joint definitions'
             jd_del(pn)
+            print 'creating standard parts geoset and calculating standard parts'
             std_parts(pn)
+            print 'moving cameras'
             cameras(pn, side, omf)
+            print 'renaming part body'
             rename_part_body(pn)
             selection1.Clear()
             #for f in xrange(4):
@@ -767,6 +799,7 @@ class Application(tk.Frame):
             #    selection1.Add(collection.Item(collection.Count - f))
             #    selection1.visProperties.SetShow(1)
             #    selection1.Clear()
+            print 'adding standard parts reference geometry'
             activate_top_prod()
             rotate.add_std_ref1(pn, instance_id, documents, selection1, collection1)
             Product.Update()

@@ -62,7 +62,7 @@ class Ref(object):
 
         f = open(str(self.customer) + '.txt')
         s_raw = f.readlines()
-        print s_raw
+        #print s_raw
         s_all = []
         state1 = True
         for element in s_raw:
@@ -80,7 +80,7 @@ class Ref(object):
             else:
                 continue
 
-        print s_all
+        #print 'customer config: ' + s_all
 
         s1 = s_all[0]
         s2 = s_all[1]
@@ -215,7 +215,7 @@ class Ref(object):
         #print Ref.angle
 
         index = 0
-
+        #print s
         for number in s:
 
             nozzl_type = 'ECO'
@@ -1220,12 +1220,15 @@ class Ref(object):
 
                 if self.sta_to_find == sta_current and self.side_to_find == side:
 
-                    if stowbin is True or 'twenty_four':
+                    if stowbin is True or stowbin == 'twenty_four':
                         #pdb.set_trace()
                         PartDocPath = redirect(self, PartDocPath)
                         print PartDocPath
-
-                    Ref.oFileSys.CopyFile(PartDocPath + extention, PartDocPath1, False)
+                    try:
+                        Ref.oFileSys.CopyFile(PartDocPath + extention, PartDocPath1, False)
+                    except:
+                        'Such reference geometry is not found: ' + PartDocPath
+                        return None
                     PartDoc = Ref.CATIA.Documents.Open(PartDocPath1)
 
                     if section == 'constant':
@@ -2664,7 +2667,7 @@ class Ref(object):
                     for i in offset_inch:
                         offset.append(i / 25.4)
                     offset[1] = abs(offset[1])
-                    print offset
+                    #print offset
         
         rad = math.radians(self.angle)
 

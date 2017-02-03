@@ -14,7 +14,7 @@ def json_lookup(pn):
             points_dict = data[pn]
             placeholder = points_dict.values()
             #f.close()
-            print pn
+            #print pn
             return placeholder
         except:
             current_time = strftime("%Y_%m_%d_%H_%M_%S", gmtime())
@@ -90,7 +90,7 @@ def json_lookup_fl(pn):
         try:
             points_dict = data[pn]
             placeholder = points_dict.values()
-            print pn
+            #print pn
             #f.close()
             return placeholder
         except:
@@ -117,7 +117,7 @@ def json_lookup_fl_keys(pn):
         try:
             points_dict = data[pn]
             placeholder = points_dict.keys()
-            print pn
+            #print pn
             #f.close()
             return placeholder
         except:

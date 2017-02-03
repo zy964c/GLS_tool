@@ -24,9 +24,8 @@ if __name__ == "__main__":
 #            dict_paste = line_dict.copy()
             gls_parts_dict[str(collector.Item(part).Name[:-2])] = line_comp
             #print gls_parts_dict
-    
 
-    with open('Y:\\My Documents\\Python Scripts\\jd_vectors.json', 'w') as f:
+    with open('jd_vectors.json', 'w') as f:
         json.dump(gls_parts_dict, f, sort_keys=True, indent=4, separators=(',', ': '))
         
     #pprint(data)

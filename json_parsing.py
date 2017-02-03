@@ -42,7 +42,7 @@ def parse_ss(layout, plug_value):
             side = i["Column"]
             bin_type = i["StowbinType"]
             size = int(i["Width"])
-            print 'STA: ' + str(i["STA"]) + ' Side: ' + str(i["Column"]) + ' Type: ' + str(i["StowbinType"]) + ' Size: ' + str(i["Width"])
+            #print 'STA: ' + str(i["STA"]) + ' Side: ' + str(i["Column"]) + ' Type: ' + str(i["StowbinType"]) + ' Size: ' + str(i["Width"])
             if 'Fairing' in bin_type:
                 value = str(size) + ' fairing'
             else:
@@ -55,6 +55,10 @@ def parse_ss(layout, plug_value):
                         sec41_rh[sta] = value
                 elif 465.0 <= sta < (1617.0 + plug_value):
                     if sta >= door_station:
+                        if sta == 819.0 and side == 'Left':
+                                constant_lh[(sta - 6)] = "6"
+                        elif sta == 819.0 and side == 'Right':
+                                constant_rh[(sta - 6)] = "6"
                         if side == 'Left' and aft_dr2_lh is False:
                             constant_lh[door_station] = 'door'
                             aft_dr2_lh = True
@@ -78,12 +82,12 @@ def parse_ss(layout, plug_value):
     sec47_lh_ordered = OrderedDict(sorted(sec47_lh.items(), key=lambda t: t[0]))
     sec47_rh_ordered = OrderedDict(sorted(sec47_rh.items(), key=lambda t: t[0]))
 
-    print sec41_lh_ordered
-    print sec41_rh_ordered
-    print constant_lh_ordered
-    print constant_rh_ordered
-    print sec47_lh_ordered
-    print sec47_rh_ordered
+    #print sec41_lh_ordered
+    #print sec41_rh_ordered
+    #print constant_lh_ordered
+    #print constant_rh_ordered
+    #print sec47_lh_ordered
+    #print sec47_rh_ordered
 
     #output_name = layout.replace('.json', '.txt')
     output_name = j['Layout']["MajorModel"] + '_' + j['Layout']["MinorModel"] + '_' + j['Layout']["Customer"] + '_' + j['Layout']["Effectivity"] + '.txt'
@@ -149,7 +153,7 @@ def parse_ss(layout, plug_value):
 
 if __name__ == "__main__":
 
-    parse_ss('JAL_ZB424.json', 240)
+    parse_ss('787_9_NEO_ZB874.json', 240)
 
             
                                                                      

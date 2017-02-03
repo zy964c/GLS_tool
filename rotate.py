@@ -52,7 +52,7 @@ def add_std_ref1(carm_pn, irm_instance_id, documents, selection1, products):
                         new_position = [1, 0, 0, 0, 1, 0, 0, 0, 1] + pos
                     else:
                         new_position = add_std_ref(glob_fivd, coord=pos, glob_x_axis=axis_rotation)
-                    print new_position
+                    #print new_position
                     axis_rotation = glob_fivd
                     added_part[1].Move.Apply(new_position)
                     init_pos = [coordinates[0], coordinates[1], coordinates[2]]
@@ -60,7 +60,7 @@ def add_std_ref1(carm_pn, irm_instance_id, documents, selection1, products):
                     selection1.Add(added_part[1])
                     selection1.Search(str('(NAME = *JD' + hb.Name[-2:] + '*), sel'))
                     if selection1.Count2 < 1:
-                        print 'JD' + hb.Name[-2:] + ' not found'
+                        print 'JD' + hb.Name[-2:] + ' std part representation not found'
                         continue
                     try:
                         selection1.Copy()
@@ -68,7 +68,7 @@ def add_std_ref1(carm_pn, irm_instance_id, documents, selection1, products):
                         'selection error'
                         continue
                     selection1.Clear()
-                    print 'JD' + hb.Name[-2:]
+                    #print 'JD' + hb.Name[-2:]
                     selection1.Add(hybridBody2)
                     selection1.PasteSpecial('CATPrtResultWithOutLink')
                     #selection1.Paste()
@@ -76,6 +76,15 @@ def add_std_ref1(carm_pn, irm_instance_id, documents, selection1, products):
                     carm_part.Update()
 
             products.Remove(added_part[1].name)
+        std_parts_surfaces = hybridBody2.HybridShapes
+        if std_parts_surfaces.Count > 0:
+            print 'changin color settings of each standard part representations'
+            for surface in xrange(1, std_parts_surfaces.Count+1):
+                selection1.Clear()
+                selection1.Add(std_parts_surfaces.Item(surface))
+                red, green, blye, inh_flag = change_color(std_parts_surfaces.Item(surface).Name)
+                selection1.visProperties.SetRealColor(red, green, blye, inh_flag)
+                selection1.Clear()
 
 
 def add_std_ref(glob_fivd, coord=[0, 0, 0], glob_x_axis=[1, 0, 0]):
@@ -84,6 +93,27 @@ def add_std_ref(glob_fivd, coord=[0, 0, 0], glob_x_axis=[1, 0, 0]):
     ang_v = transformations.angle_between_vectors(glob_x_axis, glob_fivd)
     rotation_matrix = transformations.rotation_matrix(-ang_v, perp_v)
     return [item for sublist in [list(tup[:-1]) for tup in rotation_matrix[:-1]] for item in sublist] + coord
+
+
+def change_color(name):
+
+    parts_color_dict = {'JD02 NY-5G-53-10 REF': 'grey', 'JD02 NY-5P-53-3-51 REF': 'grey',
+                        'JD11 BACN10YR3CD REF': 'grey',
+                        'JD11 BACW10BP3NPK REF': 'red', 'JD12 BACN10YR3CD REF': 'grey', 'JD12 BACW10BP3NPK REF': 'blue',
+                        'JD13 BACN10YR3CD REF': 'grey', 'JD13 BACW10BP3NPK REF': 'blue', 'JD14 BACN10YR3CD REF': 'grey',
+                        'JD14 BACW10BP3NPK REF': 'red', 'JD19 BACN11AL1CM REF': 'grey', 'JD21 BACN11AL1CM REF': 'grey',
+                        'JD24 BACN11AL1CM REF': 'grey', 'JD27 BACN10YR3CD REF': 'grey', 'JD27 BACW10BP3NPK REF': 'grey',
+                        'JD28 BACN10YR3CD REF': 'grey', 'JD28 BACW10BP3NPK REF': 'red', 'JD29 BACN10YR3CD REF': 'grey',
+                        'JD29 BACW10BP3NPK REF': 'red', 'JD30 BACN10YR3CD REF': 'grey', 'JD30 BACW10BP3NPK REF': 'red',
+                        'JD31 BACN10YR3CD REF': 'grey', 'JD31 BACW10BP3NPK REF': 'red'}
+
+    colors_dict = {'red': (255, 0, 0, 0), 'blue': (0, 128, 255, 0), 'grey': (196, 179, 209, 0),
+                   'yellow': (255, 255, 0, 0)}
+    try:
+        color_name = parts_color_dict[name]
+    except KeyError:
+        color_name = 'yellow'
+    return colors_dict[color_name]
 
 
 if __name__ == "__main__":
@@ -101,7 +131,8 @@ if __name__ == "__main__":
     #add_std_ref('CA836Z1131-46', 'GLS_STA0561-0657_OB_LH_CAI')
     #add_std_ref('CA836Z1191-46', 'GLS_STA1618-1732_OB_LH_CAI')
     #add_std_ref('CA836Z1231-46', 'GLS_STA0561-0657_OB_RH_CAI')
-    add_std_ref1('CA836Z1191-46_2017_01_27_10_40_53', 'GLS_STA1618-1732_OB_LH_CAI', documents, selection1, collection_irms_irm)
+    add_std_ref1('CA836Z1191-46_2017_01_27_10_40_53', 'GLS_STA1618-1732_OB_LH_CAI', documents, selection1,
+                 collection_irms_irm)
 
     #perp_v = transformations.vector_product(global_x_axis, b)
     #print perp_v

@@ -16,7 +16,7 @@ def add_carm_as_external_component(pn, name, inserted='seed'):
         documents = catia.Documents
         for doc in xrange(1, documents.Count+1):
                 #print documents.Item(doc).Name
-                if pn in documents.Item(doc).Name:
+                if pn in documents.Item(doc).Name and 'cgr' not in documents.Item(doc).Name:
                     #print documents.Item(doc).Name
                     pn = pn + '_' + current_time
         product_to_insert_carm = collection_irms.Item(name)
@@ -34,5 +34,5 @@ def add_carm_as_external_component(pn, name, inserted='seed'):
 
 if __name__ == "__main__":
 
-        new_pn = add_carm_as_external_component('IR836Z1131-46', 'GLS_STA0561-0657_OB_LH_CAI')
-        #print new_pn
+        new_pn = add_carm_as_external_component('CA836Z1791-2', 'GLS_STA1618-1732_OB-OMF_RH_CAI')
+        print new_pn[0]
