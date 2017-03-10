@@ -4,6 +4,7 @@ import os
 import pdb
 from functions import inch_to_mm, mm_to_inch, sta_value
 from ringposts import redirect
+from add_component_centers import CenterBin
 
 
 class Ref(object):
@@ -27,8 +28,8 @@ class Ref(object):
 
  #  @staticmethod
 
-    def __init__(self, customer, sta, side, plug, bin_order, irm_ln, all_irm_parts, path=work_path_lib, name=None,
-                 component_name=None):
+    def __init__(self, customer, sta, side, plug, bin_order, irm_ln, all_irm_parts, path=work_path_lib,
+                 irm_type=1, name=None, component_name=None):
         self.plug = plug
         self.path = path
         self.customer = customer
@@ -39,6 +40,7 @@ class Ref(object):
         self.bin_order = bin_order
         self.irm_ln = irm_ln
         self.all_irm_parts = all_irm_parts
+        self.irm_type = irm_type
 
     def set_plug(self, new_plug):
         self.plug = new_plug
@@ -2694,6 +2696,12 @@ class Ref(object):
 
         Ref.instantiate_nonconstant_components(self)
 
+        if self.irm_type == 2:
+            C_Ref = CenterBin(self.name, self.sta_to_find, self.plug)
+            new_name = C_Ref.parse_ss('json_cus_data\\' + self.customer + '.json')
+            self.set_name(new_name)
+            return new_name
+
         s1, s2, s3, s4, s5, s6 = self.converter()
 
         if s3 != ['']:
@@ -2858,8 +2866,8 @@ if __name__ == "__main__":
     #ecs1 = Ref('787_9_KAL_ZB656', '0609', 'LH', 240, 2, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
     #ecs2 = Ref('787_9_KAL_ZB656', '0609+48', 'LH', 240, 3, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
     #ecs3 = Ref('787_9_KAL_ZB656', '0393', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1')
-    ecs3 = Ref('787_9_KAL_ZB656', '0417', 'LH', 240, 2, 2, ['1X5005-210000-0##ALT68'], name='Product1.1')
-    ecs4 = Ref('787_9_KAL_ZB656', '0393', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1')
+    ecs3 = Ref('787_9_NEO_ZB874', '0489', 'LH', 240, 2, 2, ['1X5005-210000-0##ALT68'], name='Product1.1', irm_type=2)
+    ecs4 = Ref('787_9_NEO_ZB874', '0513', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1', irm_type=2)
     #ecs.build()
     #ecs1.build()
     #ecs2.build()
@@ -2873,7 +2881,7 @@ if __name__ == "__main__":
 
 #    ecs4 = Ref('787_9_KAL_ZB656', '0465', 'LH', 240, name='new_instance')
 #    ecs4.build()
-#    ecs4.remove_component()
+    #ecs4.remove_component()
 
 #    bins = []
 #    ecs = Ref('BRI', '0345', 'LH')

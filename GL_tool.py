@@ -237,11 +237,13 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
         return None
 
 
-def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value, bin_order, irm_len, all_irm_parts, pn):
+def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value, bin_order, irm_len, all_irm_parts,
+              bin_type):
 
     global ref_objects
     #print all_irm_parts
-    ref1 = Ref(customer, sta1, side1, plug_value, bin_order, irm_len, all_irm_parts, name=instance_id1)
+    ref1 = Ref(customer, sta1, side1, plug_value, bin_order, irm_len, all_irm_parts, bin_type,
+               name=instance_id1)
     try:
         ref1.build()
     except IOError:
@@ -551,7 +553,7 @@ class Application(tk.Frame):
 
             tk.Radiobutton(self.f0, text="787-9", font=('Helvetica', 11), variable=self.plug, value=240).pack(side='left', padx=5, pady=5)
             tk.Radiobutton(self.f10, text="OUTBD", font=('Helvetica', 11), variable=self.bin_type, value=1).pack(side='left', padx=5, pady=5)
-            tk.Radiobutton(self.f11, text="CTR", font=('Helvetica', 11), variable=self.bin_type, state='disabled', value=2).pack(side='left', padx=5, pady=5)
+            tk.Radiobutton(self.f11, text="CTR", font=('Helvetica', 11), variable=self.bin_type, state='normal', value=2).pack(side='left', padx=5, pady=5)
             tk.Label(self.f1, text="CUSTOMER:", font=('Helvetica', 13)).pack(side='left', padx=5)
             tk.Radiobutton(self.f20, text="LH", font=('Helvetica', 11), variable=self.irm_side, value=1).pack(side='left', padx=5, pady=5)
             tk.Radiobutton(self.f21, text="RH", font=('Helvetica', 11), variable=self.irm_side, value=2).pack(side='left', padx=5, pady=5)
@@ -598,7 +600,7 @@ class Application(tk.Frame):
             plug_value = self.plug.get()
             input_config = []
             work_path_folder = os.getcwd()
-            
+            bin_type = self.bin_type
             size1_value = self.size1.get()
             size2_value = self.size2.get()
             size3_value = self.size3.get()
@@ -680,24 +682,13 @@ class Application(tk.Frame):
                 sys.exit(0)
             selected1 = selection1.Item2(1).Value
             pn = 'CA' + str(selected1.PartNumber)[2:]
-            #print pn
             instance_id = selected1.Name
-            #print instance_id
-            #side1 = str(selected1.Name)[:-4]
-            #side = side1[-2:]
-            #if 'LH' in str(selected1.Name):
-            #    side = 'LH'
-            #elif 'RH' in str(selected1.Name):
-            #    side = 'RH'
-            #else:
-            #    tkMessageBox.showerror("Fatal error", 'Include LH or RH in IRM instance ID. Press OK to exit')
-            #    root.destroy()
-            #    sys.exit(0)
-            #print side
             if irm_side_value == 1:
                 side = 'LH'
             elif irm_side_value == 2:
                 side = 'RH'
+            if bin_type == 2:
+                side = 'CTR'
             try:
                 product = collection.Item(instance_id)
             except:
@@ -731,10 +722,11 @@ class Application(tk.Frame):
             for fairing in input_config:
                 bin_order += 1
                 reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value, bin_order,
-                          len(input_config), all_irm_parts, pn)
-                omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts,
+                          len(input_config), all_irm_parts, bin_type)
+                omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts, bin_type,
                           name=instance_id)
-                create_point_sta(pn, omf)
+                if self.bin_type == 1:
+                    create_point_sta(pn, omf)
             print 'renaming reference geometry parts'
             for prod in xrange(1, collection.Count + 1):
                 if collection.Item(prod).name == instance_id:

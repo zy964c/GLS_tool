@@ -1,4 +1,4 @@
-##from pprint import pprint
+from pprint import pprint
 
 
 class Annotation(object):
@@ -28,6 +28,11 @@ class Annotation(object):
              'FWD Facing AFT - Text Plane 47 RH',
              'Inboard Facing Out - Lower Support - Text Plane 47 RH']
 
+    views_ctr = ['FWD Facing AFT - Text Plane',
+                 'Outboard LH Facing In - Upper Support - Text Plane',
+                 'Outboard RH Facing In - Upper Support - Text Plane',
+                 'JD40 - Section View']
+
     def __init__(self, annot_name, annot_view, capture_name):
         self.annot_name = annot_name
         self.annot_view = annot_view
@@ -48,7 +53,9 @@ class Annotation(object):
 
 class AnnotationFactory(object):
 
-    def __init__(self):
+    def __init__(self, irm_type=1):
+
+        self.irm_type = irm_type
         self.annots = {'FL1': ['Inboard Facing Out - Lower Support', 'Wire Harness And Wire Splice Location'],
                        'FL2': ['Inboard Facing Out - Lower Support', 'Wire Harness And Wire Splice Location'],
                        'FL3': ['Inboard Facing Out - Top Support', 'Ceiling Light Marker Installation'],
@@ -69,6 +76,7 @@ class AnnotationFactory(object):
                        'FL17': ['Outboard Facing In - Middle Support', 'Wire Harness of  1J5009-3010(XX) Installation'],
                        'FL18': ['Inboard Facing Out - Top Support', 'NOFAR Light Marker Installation'],
                        'FL19': ['Inboard Facing Out - Top Support', 'Power Supply Marker Installation'],
+                       'FL20': ['Outboard LH Facing In - Upper Support', 'Wire Harness to Ceiling Light'],
                        'FL28': ['Inboard Facing Out - Lower Support', 'Wire Bundle'],
                        'FL29': ['Inboard Facing Out - Lower Support', 'Bushing Installation'],
                        'FL38': ['Inboard Facing Out - Lower Support', 'Bushing Installation'],
@@ -101,6 +109,9 @@ class AnnotationFactory(object):
                        'JD 28': ['Inboard Facing Out - Lower Support', 'JD28 Ring post to Rail Typical'],
                        'JD 29': ['Outboard Facing In - Middle Support', 'JD29 1510-1 Bracket to Rail Typical'],
                        'JD 31': ['Outboard Facing In - Middle Support', 'JD31 Saddle Clamp Typical'],
+                       'JD 40': ['JD40 - Section View', 'Joint Definition 40'],
+                       'JD 41': ['Outboard LH Facing In - Upper Support', 'Joint Definition 41'],
+                       'JD 42': ['Outboard LH Facing In - Upper Support', 'Joint Definition 42'],
                        'sta': ['Inboard Facing Out - Lower Support', 'Reference Geometry'],
                        '1X5005-412(XXX) Alignment Feature': ['FWD Facing AFT', 'JD01 Ceiling Light Typical'],
                        '1X5005-412(XXX) Mounting Feature': ['FWD Facing AFT', 'JD01 Ceiling Light Typical'],
@@ -121,12 +132,67 @@ class AnnotationFactory(object):
                        'power_supply_marker': ['Inboard Facing Out - Top Support',
                                                'Power Supply Marker Installation']}
 
+        self.annots_ctr = {'FL2': ['FWD Facing AFT - Text Plane', 'Wire Splice Location'],
+                           'FL3': ['Outboard LH Facing In - Upper Support - Text Plane',
+                                  ['Ceiling Light Marker Installation LH', 'Ceiling Light Marker Installation RH']],
+                           'FL5': ['Outboard LH Facing In - Upper Support - Text Plane', 'Pigtail Upper'],
+                           'FL8': ['FWD Facing AFT - Text Plane', 'Wire Harness Tie'],
+                           'FL12': ['Outboard LH Facing In - Upper Support - Text Plane',
+                                   ['FL12_LH', 'FL12_RH']],
+                           'FL16': ['FWD Facing AFT - Text Plane',
+                                   ['NOFAR Termination Plug Marker Installation LH',
+                                    'NOFAR Termination Plug Marker Installation RH']],
+                           'FL17': ['FWD Facing AFT - Text Plane',
+                                    'Wire Harness of  1J5009-3010(XX) Installation'],
+                           'FL18': ['FWD Facing AFT - Text Plane', ['NOFAR Light Marker Installation LH',
+                                                                    'NOFAR Light Marker Installation RH']],
+                           'FL19': ['FWD Facing AFT - Text Plane', ['Power Supply Marker Installation LH',
+                                                                    'Power Supply Marker Installation RH']],
+                           'FL20': ['Outboard LH Facing In - Upper Support - Text Plane',
+                                    'Wire Harness to Ceiling Light'],
+                           'FL21': ['Outboard RH Facing In - Upper Support - Text Plane',
+                                    'FL21 Typical for BACM14L'],
+                           'FL22': ['JD40 - Section View', 'FL22 Typical'],
+                           'JD 04': ['FWD Facing AFT - Text Plane', 'Joint Definition 04'],
+                           'JD 09': ['FWD Facing AFT - Text Plane', 'Joint Definition 09'],
+                           'JD 26': ['FWD Facing AFT - Text Plane', 'Joint Definition 26'],
+                           'JD 40': ['JD40 - Section View', 'Joint Definition 40'],
+                           'JD 41': ['Outboard LH Facing In - Upper Support - Text Plane', 'Joint Definition 41'],
+                           'JD 42': ['Outboard LH Facing In - Upper Support - Text Plane', 'Joint Definition 42'],
+                           'JD 45': ['FWD Facing AFT - Text Plane', 'Joint Definition 45'],
+                           'JD 46': ['FWD Facing AFT - Text Plane', 'Joint Definition 46'],
+                           'JD 47': ['FWD Facing AFT - Text Plane', 'Joint Definition 47'],
+                           'JD 48': ['FWD Facing AFT - Text Plane', 'Joint Definition 48'],
+                           'JD 49': ['FWD Facing AFT - Text Plane', 'Joint Definition 49'],
+                           'JD 52': ['FWD Facing AFT - Text Plane', 'Joint Definition 52'],
+                           'JD 53': ['FWD Facing AFT - Text Plane', 'Joint Definition 53'],
+                           'sta_LH': ['Outboard LH Facing In - Upper Support - Text Plane', 'Reference Geometry'],
+                           'sta_RH': ['Outboard RH Facing In - Upper Support - Text Plane', 'Reference Geometry'],
+                           'light_marker': ['Outboard LH Facing In - Upper Support - Text Plane',
+                                            ['Ceiling Light Marker Installation LH',
+                                             'Ceiling Light Marker Installation RH']],
+                           'term_plug_marker_ceiling': ['Outboard LH Facing In - Upper Support - Text Plane',
+                                                        ['FL12_LH', 'FL12_RH']],
+                           'term_plug_marker_nofar': ['FWD Facing AFT - Text Plane',
+                                                      ['NOFAR Termination Plug Marker Installation LH',
+                                                       'NOFAR Termination Plug Marker Installation RH']],
+                           'nofar_light_marker': ['FWD Facing AFT - Text Plane',
+                                                 ['NOFAR Light Marker Installation LH',
+                                                  'NOFAR Light Marker Installation RH']],
+                           'power_supply_marker': ['FWD Facing AFT - Text Plane',
+                                                  ['Power Supply Marker Installation LH',
+                                                   'Power Supply Marker Installation RH']]
+                           }
+
     def get_annot_dict(self):
         collection = []
         views_dict1 = {}
-        if len(self.annots) > 0:
-            for key in self.annots:
-                a = Annotation(key, self.annots[key][0], self.annots[key][1])
+        d = self.annots
+        if self.irm_type == 2:
+            d = self.annots_ctr
+        if len(d) > 0:
+            for key in d:
+                a = Annotation(key, d[key][0], d[key][1])
                 collection.append(a)
             for item in collection:
                 views_dict1[item.get_annot_name()] = self.add_annot(item)
@@ -142,13 +208,19 @@ class AnnotationFactory(object):
                 'RH': {'constant': a.get_annot_view() + ' - Text Plane RH',
                        '41': a.get_annot_view() + ' - Text Plane 41 RH',
                        '47': a.get_annot_view() + ' - Text Plane 47 RH'},
+                'CTR': {'constant': a.get_annot_view(),
+                        '41': a.get_annot_view(),
+                        '47': a.get_annot_view()},
                 'capture': a.get_capture_name()}
 
     def get_view_number(self, annot_name, side, section):
 
         dict1 = self.get_annot_dict()
         try:
-            result = Annotation.views.index(dict1[annot_name][side][section])
+            if self.irm_type == 1:
+                result = Annotation.views.index(dict1[annot_name][side][section])
+            elif self.irm_type == 2:
+                result = Annotation.views_ctr.index(dict1[annot_name][side][section])
         except:
             return None
         return result
@@ -178,10 +250,11 @@ if __name__ == "__main__":
     # assert view_index('JOINT DEFINITION 01', 'LH', 'constant') == 0
     # assert view_index('sta', 'LH', 'constant') == 1
     # assert views_dict['FL2']['capture'] == 'FL1 and FL2 Typical'
-    annotations = AnnotationFactory()
+    annotations = AnnotationFactory(irm_type=2)
     look_at_dict = annotations.get_annot_dict()
-    # pprint(look_at_dict)
+    pprint(look_at_dict)
     # b = Annotation('FL1', 'Inboard Facing Out - Lower Support', 'FL1 and FL2 Typical')
     # print b.get_annot_name()
-    print annotations.get_view_name('Fixing Tower', 'RH', '47')
-    print annotations.get_capture('FL4')
+    print annotations.get_view_number('sta_RH', 'CTR', 'constant')
+    print annotations.get_view_name('sta_RH', 'CTR', 'constant')
+    print annotations.get_capture('sta_RH')

@@ -6,7 +6,7 @@ from matrix import axis_coord, mod
 from pprint import pprint
 
 
-def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id, side):
+def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id, side, irm_type=1):
     """Adds JOINT DEFINITION XX annotation"""
     
     catia = win32com.client.Dispatch('catia.application')
@@ -33,7 +33,7 @@ def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id, side):
         carm_doc = documents.Item(carm_pn + ".CATPart")
         carm_part = carm_doc.Part
         KBE = carm_part.GetCustomerFactory("BOEAnntFactory")
-        annotations = AnnotationFactory()
+        annotations = AnnotationFactory(irm_type)
         view_name = annotations.get_view_number('JD ' + jd_number_formatted,
                                                 side, sec)
         if view_name is None:
@@ -164,7 +164,7 @@ def access_captures(instance_id, number):
     capture1.DisplayCapture()
 
 
-def add_annotation(carm_pn, sta_value, instance_id, side):
+def add_annotation(carm_pn, sta_value, instance_id, side, irm_type=1):
     """Adds annotation"""
     
     catia = win32com.client.Dispatch('catia.application')
@@ -245,7 +245,7 @@ def add_annotation(carm_pn, sta_value, instance_id, side):
             else:
                 added_annots.append(annot_text)
         
-        annotations = AnnotationFactory()
+        annotations = AnnotationFactory(irm_type)
         view_name = annotations.get_view_number(annot_text_check, side, sec)
         if view_name is None:
             continue
