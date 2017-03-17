@@ -19,9 +19,9 @@ from json_parsing import parse_ss
 from functions import sta_value
 from subprocess import check_call
 
+#pdb.set_trace()
 
 ref_objects = []
-
 
 def return_part(prdct_id, part_id):
     """
@@ -73,7 +73,6 @@ def create_point(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_va
             point_added.RefAxisSystem = reference1
             if hybridBody2 is not None:
                 points = hybridBody2.HybridShapes
-                #pdb.set_trace()
                 if points.Count > 0 and 'FIDV' in points.Item(points.Count).Name:
                     selection1.Add(points.Item(points.Count))
                     selection1.Delete()
@@ -229,7 +228,6 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
     hybridBodies2 = hybridBody1.HybridBodies
     joint = JD(part_pn, instance_id1, part_name1, plug_value)
     jd_name = joint.get_name()
-    #print jd_name
     if jd_name is not None:
         hybridBody2 = hybridBodies2.Item('Joint Definition ' + jd_name)
         return hybridBody2
@@ -241,8 +239,7 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
               bin_type):
 
     global ref_objects
-    #print all_irm_parts
-    ref1 = Ref(customer, sta1, side1, plug_value, bin_order, irm_len, all_irm_parts, bin_type,
+    ref1 = Ref(customer, sta1, side1, plug_value, bin_order, irm_len, all_irm_parts, irm_type=bin_type,
                name=instance_id1)
     try:
         ref1.build()
@@ -256,8 +253,6 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
     for i in xrange(1, collection1.Count + 1):
             prod = collection1.Item(i)
             try:
-                #print 'ref comp name: ' + ref1.component_name
-                #print 'collection item name ' + collection1.Item(i).Name
                 if ref1.component_name in collection1.Item(i).Name:
                     ref_part = collection1.Item(i)
                     break
@@ -327,14 +322,12 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
         selection1.Clear()
         #set_visibility(pn, False)
         carm_part = return_part(instance_id1, part_name1)
-        #KBE = carm_part.GetCustomerFactory("KBEFactory")
         selection1.Add(carm_part)
         selection1.PasteSpecial('CATPrtResultWithOutLink')
         carm_part.Update()
         selection1.Clear()
         #set_visibility(pn, True)
     ref_objects.append(ref1)
-#    ref1.remove_component()
 
 
 def deleter():
@@ -420,7 +413,6 @@ def jd_del(carm_pn):
 
 
 def rename_part_body(carm_pn):
-        # type: (object) -> object
 
         """renames part body and activates it"""
 
@@ -429,7 +421,6 @@ def rename_part_body(carm_pn):
         bodies = carm_part.Bodies
         part_body = bodies.Item(1)
         part_body.name = carm_pn
-        #carm_part.InWorkObject = part_body
         hyb_bodies = carm_part.HybridBodies
         st_notes = hyb_bodies.Item('Standard Notes:')
         carm_part.InWorkObject = st_notes
@@ -534,7 +525,7 @@ class Application(tk.Frame):
 #            for item in bin_sizes:
 #                listbox.insert('end', item)
 
-            customers_search_json = glob.glob('*.json')
+            customers_search_json = glob.glob(os.getcwd() + '\\json_cus_data\\*.json')
             customers_search_txt = glob.glob('*.txt')
             customers = customers_search_json + customers_search_txt
 
@@ -551,12 +542,24 @@ class Application(tk.Frame):
 #            cb.current(1)
 #            cb.pack()
 
+            def click_on():
+                rb_lh.config(state='normal')
+                rb_rh.config(state='normal')
+
+            def click_off():
+                rb_lh.config(state='disabled')
+                rb_rh.config(state='disabled')
+
+            rb_ctr = tk.Radiobutton(self.f11, text="CTR", font=('Helvetica', 11), variable=self.bin_type, value=2, command=click_off)
+            rb_outbd = tk.Radiobutton(self.f10, text="OUTBD", font=('Helvetica', 11), variable=self.bin_type, value=1, command=click_on)
+            rb_lh = tk.Radiobutton(self.f20, text="LH", font=('Helvetica', 11), variable=self.irm_side, value=1)
+            rb_rh = tk.Radiobutton(self.f21, text="RH", font=('Helvetica', 11), variable=self.irm_side, value=2)
             tk.Radiobutton(self.f0, text="787-9", font=('Helvetica', 11), variable=self.plug, value=240).pack(side='left', padx=5, pady=5)
-            tk.Radiobutton(self.f10, text="OUTBD", font=('Helvetica', 11), variable=self.bin_type, value=1).pack(side='left', padx=5, pady=5)
-            tk.Radiobutton(self.f11, text="CTR", font=('Helvetica', 11), variable=self.bin_type, state='normal', value=2).pack(side='left', padx=5, pady=5)
+            rb_outbd.pack(side='left', padx=5, pady=5)
+            rb_ctr.pack(side='left', padx=5, pady=5)
             tk.Label(self.f1, text="CUSTOMER:", font=('Helvetica', 13)).pack(side='left', padx=5)
-            tk.Radiobutton(self.f20, text="LH", font=('Helvetica', 11), variable=self.irm_side, value=1).pack(side='left', padx=5, pady=5)
-            tk.Radiobutton(self.f21, text="RH", font=('Helvetica', 11), variable=self.irm_side, value=2).pack(side='left', padx=5, pady=5)
+            rb_lh.pack(side='left', padx=5, pady=5)
+            rb_rh.pack(side='left', padx=5, pady=5)
             tk.Label(self.f2, text="STA", font=('Helvetica', 13)).pack(side='left', padx=50, pady=5)
             tk.Label(self.f2, text="BIN SIZE",  font=('Helvetica', 13)).pack(side='left', padx=25, pady=5)
             tk.Entry(self.f3, textvariable=self.sta1, width=15).pack(side='left',  padx=5, pady=5)
@@ -580,6 +583,7 @@ class Application(tk.Frame):
             apply(tk.OptionMenu, (self.f1, self.cus) + tuple(customers)).pack(side='left', padx=5, pady=0)
             tk.Radiobutton(self.f01, text="787-10", font=('Helvetica', 11), variable=self.plug, value=456).pack(side='left', padx=5, pady=5)
             tk.Button(self.f9, text="SUBMIT", command=self.start,  font=('Helvetica', 13)).pack()
+
         # need to run progressbar in another thread    
 #        def progress_start(self):
 #
@@ -600,7 +604,7 @@ class Application(tk.Frame):
             plug_value = self.plug.get()
             input_config = []
             work_path_folder = os.getcwd()
-            bin_type = self.bin_type
+            bin_type = self.bin_type.get()
             size1_value = self.size1.get()
             size2_value = self.size2.get()
             size3_value = self.size3.get()
@@ -669,8 +673,14 @@ class Application(tk.Frame):
             if len(input_config) == 0:
                 root.destroy()
                 sys.exit(0)
-            #print customer
             print 'input: ' + str(input_config)
+
+            if bin_type == 2:
+                side = 'CTR'
+            elif irm_side_value == 1:
+                side = 'LH'
+            elif irm_side_value == 2:
+                side = 'RH'
 
             if tkMessageBox.askokcancel('Choose IRM', 'Press OK to choose an IRM, Cancel to exit') is False:
                 root.destroy()
@@ -683,12 +693,7 @@ class Application(tk.Frame):
             selected1 = selection1.Item2(1).Value
             pn = 'CA' + str(selected1.PartNumber)[2:]
             instance_id = selected1.Name
-            if irm_side_value == 1:
-                side = 'LH'
-            elif irm_side_value == 2:
-                side = 'RH'
-            if bin_type == 2:
-                side = 'CTR'
+
             try:
                 product = collection.Item(instance_id)
             except:
@@ -711,7 +716,10 @@ class Application(tk.Frame):
              #   except:
              #       continue
             print 'adding CARM to IRM'
-            added_carm = add_carm_as_external_component(pn, instance_id)
+            if bin_type == 2:
+                added_carm = add_carm_as_external_component(pn, instance_id, inserted='seed_ctr')
+            else:
+                added_carm = add_carm_as_external_component(pn, instance_id)
             pn = added_carm[0]
             #print pn
             #pdb.set_trace()
@@ -723,8 +731,8 @@ class Application(tk.Frame):
                 bin_order += 1
                 reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value, bin_order,
                           len(input_config), all_irm_parts, bin_type)
-                omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts, bin_type,
-                          name=instance_id)
+                omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts,
+                          irm_type=bin_type, name=instance_id)
                 if self.bin_type == 1:
                     create_point_sta(pn, omf)
             print 'renaming reference geometry parts'
@@ -766,7 +774,7 @@ class Application(tk.Frame):
             except:
                 sys.exit("running external process GetPointCoordinates error")
             print 'creating JD annotations'
-            add_jd_annotation(pn, input_config[0][0], 31, instance_id, side)
+            add_jd_annotation(pn, input_config[0][0], 31, side, bin_type)
             # access_captures(instance_id, 1)
             print 'writing coordinates of all flagnote points to the text file'
             try:
@@ -774,7 +782,7 @@ class Application(tk.Frame):
             except:
                 sys.exit("running external process GetFlagNoteCoordinates error")
             print 'creating flagnote annotations'
-            add_annotation(pn, input_config, instance_id, side)
+            add_annotation(pn, input_config, side, bin_type)
             print 'removing not used captures'
             capture_del(pn, instance_id)
             print 'removing not used joint definitions'
@@ -782,18 +790,13 @@ class Application(tk.Frame):
             print 'creating standard parts geoset and calculating standard parts'
             std_parts(pn)
             print 'moving cameras'
-            cameras(pn, side, omf)
-            print 'renaming part body'
-            rename_part_body(pn)
+            cameras(pn, omf)
             selection1.Clear()
-            #for f in xrange(4):
-            #    selection1.Clear()
-            #    selection1.Add(collection.Item(collection.Count - f))
-            #    selection1.visProperties.SetShow(1)
-            #    selection1.Clear()
             print 'adding standard parts reference geometry'
             activate_top_prod()
             rotate.add_std_ref1(pn, instance_id, documents, selection1, collection1)
+            print 'renaming part body'
+            rename_part_body(pn)
             Product.Update()
             root.destroy()
             sys.exit(0)

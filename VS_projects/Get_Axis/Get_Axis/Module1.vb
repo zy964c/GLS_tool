@@ -9,7 +9,7 @@ Module Module1
         Dim dict As New Dictionary(Of String, String)
         For k As Integer = 1 To documents.Count
             Dim doc_name As String = documents.Item(k).Name
-            If doc_name.Contains("seed_fairing_lh") Then
+            If doc_name.Contains("seed_ctr") Then
                 carm_pn1 = doc_name
                 'Debug.Print(doc_name)
                 Dim carm_doc = documents.Item(carm_pn1)

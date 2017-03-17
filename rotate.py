@@ -78,7 +78,7 @@ def add_std_ref1(carm_pn, irm_instance_id, documents, selection1, products):
             products.Remove(added_part[1].name)
         std_parts_surfaces = hybridBody2.HybridShapes
         if std_parts_surfaces.Count > 0:
-            print 'changin color settings of each standard part representations'
+            print 'changing color settings of each standard part representations'
             for surface in xrange(1, std_parts_surfaces.Count+1):
                 selection1.Clear()
                 selection1.Add(std_parts_surfaces.Item(surface))

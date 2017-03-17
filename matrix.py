@@ -4,9 +4,9 @@ import math
 from views import Annotation
 
 
-def axis_coord(point, view):
+def axis_coord(point, view, irm_type):
 
-    ac = json_lookup_axis(view)
+    ac = json_lookup_axis(view, irm_type)
     x, y, z = symbols("x, y, z")
     A = Matrix([[ac[3], ac[6], ac[9]], [ac[4], ac[7], ac[10]], [ac[5], ac[8], ac[11]]])
     b = Matrix([(point[0] - ac[0]), (point[1] - ac[1]), (point[2] - ac[2])])

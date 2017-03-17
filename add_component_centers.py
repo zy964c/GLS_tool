@@ -34,8 +34,8 @@ class CenterBin(object):
                 size = int(i["Width"])
                 bin_type = i["StowbinType"]
                 subtype = i["BinSubtype"]
-                known_subtypes = ["OFCR", "OFAR", "Horseshoe", "Hybrid"]
-                made_subtypes = []
+                known_subtypes = ["OFCR", "OFAR", "Horseshoe", "Hybrid", "PCP"]
+                made_subtypes = ["PCP"]
                 if subtype in known_subtypes:
                     if subtype is not None and subtype in made_subtypes:
                         incl_subtype = subtype
@@ -47,6 +47,7 @@ class CenterBin(object):
                 try:
                     CenterBin.oFileSys.CopyFile(PartDocPath + self.extention, PartDocPath1, False)
                 except:
+                    print 'Such reference geometry is not found: ' + PartDocPath
                     break
                 ICM_Product = CenterBin.CATIA.ActiveDocument.Product.Products.Item(self.name)
                 ICM_Products = ICM_Product.Products
@@ -59,8 +60,10 @@ class CenterBin(object):
                 position = [1, 0, 0, 0, 1, 0, 0, 0, 1, inch_to_mm(float(self.sta)), 0, 0]
                 NewComponent.Move.Apply(position)
                 return self.component_name
-        print 'Such reference geometry is not found: ' + PartDocPath
+
         return None
+
+# helper to get info from json export
 
     def parse_ss1(self, layout):
 
@@ -79,21 +82,25 @@ class CenterBin(object):
 
 if __name__ == "__main__":
 
+    layout = os.getcwd() + '\\json_cus_data\\787_9_GUL_ZB858.json'
+    k = json.load(codecs.open(layout, 'r', 'utf-8-sig'))
+    content = k['Layout']['Children']
+    sta = [i["STA"] for i in content if i["ObjectType"] == "Stowbin" and i["Column"] == "Center"]
+    print sta
+
     irm = 'Product1.1'
     dash_nine = 240
-    c = CenterBin(irm, '0489', dash_nine)
-    c1 = CenterBin(irm, '0513', dash_nine)
-    c2 = CenterBin(irm, '0561', dash_nine)
-    c3 = CenterBin(irm, '0609', dash_nine)
-    c4 = CenterBin(irm, '0657', dash_nine)
-    c5 = CenterBin(irm, '0801', dash_nine)
-    c6 = CenterBin(irm, '0825', dash_nine)
-    c7 = CenterBin(irm, '0873', dash_nine)
-    c8 = CenterBin(irm, '0921', dash_nine)
-    c9 = CenterBin(irm, '0969', dash_nine)
-    c10 = CenterBin(irm, '1017', dash_nine)
-    m = [c, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]
+    m = []
+
+    def add_zero(j):
+        if j < 1000:
+            return '0'+str(j)
+        return str(j)
+    for l in map(add_zero, sta):
+        sbin = CenterBin(irm, l, dash_nine)
+        m.append(sbin)
+    print len(m)
     for n in m:
-        print n.parse_ss(n.work_path + '\\json_cus_data\\787_9_NEO_ZB874.json')
+        print n.parse_ss(layout)
     #c.parse_ss1(c.work_path + '\\json_cus_data\\787_9_NEO_ZB874.json')
 

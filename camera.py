@@ -25,35 +25,35 @@ def update_camera(cam_name, omf):
         cam_coord = slice(0, 3)
         sight_dir = slice(3, 6)
         up_dir = slice(6, 9)
-        coord_origin = json_lookup_camera(cam_name)[cam_coord]
-        sight_direction = json_lookup_camera(cam_name)[sight_dir]
-        up_direction = json_lookup_camera(cam_name)[up_dir]
+        coord_origin = json_lookup_camera(cam_name, omf.side_to_find)[cam_coord]
+        sight_direction = json_lookup_camera(cam_name, omf.side_to_find)[sight_dir]
+        up_direction = json_lookup_camera(cam_name, omf.side_to_find)[up_dir]
         coord_origin_global = omf.get_position_camera(coord_origin)
         return coord_origin_global, sight_direction, up_direction
 
-def cameras(pn, side, omf):
+
+def cameras(pn, omf):
         
         catia = win32com.client.Dispatch('catia.application')
         documents1 = catia.Documents
         partDocument1 = documents1.Item(pn + '.CATPart')
-        cameras = partDocument1.Cameras
-        if omf.section == '41':
+        cameras_collection = partDocument1.Cameras
+        if omf.section == '41' and omf.side_to_find != 'CTR':
                 angle = 5.0
-        elif omf.section == '47':
+        elif omf.section == '47' and omf.side_to_find != 'CTR':
                 angle = -3.125
         else:
                 angle = 0  
-        for i in xrange(1, cameras.Count+1):
-            camera = cameras.Item(i)
+        for i in xrange(1, cameras_collection.Count+1):
+            camera = cameras_collection.Item(i)
             viewpoint = camera.Viewpoint3D
-            #print camera.Name
             if camera.Name == 'Wire Routing Typical':
                 continue
             viewpoint_data = update_camera(camera.Name, omf)
             cam_coord, sight_dir, up_dir = viewpoint_data
             sight_dir_rotated = rotate_vector(angle, sight_dir)
             up_dir_rotated = rotate_vector(angle, up_dir)
-            if side == 'RH':
+            if omf.side_to_find == 'RH':
                     sight_dir_rotated[1] = sight_dir_rotated[1] * -1
                     up_dir_rotated[1] = up_dir_rotated[1] * -1
             sight_dir_rotated = [float(buffer(str(sight_dir_rotated[0]))),

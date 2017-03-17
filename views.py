@@ -50,7 +50,6 @@ class Annotation(object):
 
         return self.capture_name
 
-
 class AnnotationFactory(object):
 
     def __init__(self, irm_type=1):
@@ -166,12 +165,15 @@ class AnnotationFactory(object):
                            'JD 49': ['FWD Facing AFT - Text Plane', 'Joint Definition 49'],
                            'JD 52': ['FWD Facing AFT - Text Plane', 'Joint Definition 52'],
                            'JD 53': ['FWD Facing AFT - Text Plane', 'Joint Definition 53'],
-                           'sta_LH': ['Outboard LH Facing In - Upper Support - Text Plane', 'Reference Geometry'],
-                           'sta_RH': ['Outboard RH Facing In - Upper Support - Text Plane', 'Reference Geometry'],
-                           'light_marker': ['Outboard LH Facing In - Upper Support - Text Plane',
+                           'sta': [['Outboard LH Facing In - Upper Support - Text Plane',
+                                    'Outboard RH Facing In - Upper Support - Text Plane'],
+                                   'Reference Geometry'],
+                           'light_marker': [['Outboard LH Facing In - Upper Support - Text Plane',
+                                            'Outboard RH Facing In - Upper Support - Text Plane'],
                                             ['Ceiling Light Marker Installation LH',
                                              'Ceiling Light Marker Installation RH']],
-                           'term_plug_marker_ceiling': ['Outboard LH Facing In - Upper Support - Text Plane',
+                           'term_plug_marker_ceiling': [['Outboard LH Facing In - Upper Support - Text Plane',
+                                                        'Outboard RH Facing In - Upper Support - Text Plane'],
                                                         ['FL12_LH', 'FL12_RH']],
                            'term_plug_marker_nofar': ['FWD Facing AFT - Text Plane',
                                                       ['NOFAR Termination Plug Marker Installation LH',
@@ -202,28 +204,36 @@ class AnnotationFactory(object):
 
     def add_annot(self, a):
 
-        return {'LH': {'constant': a.get_annot_view() + ' - Text Plane LH',
-                       '41': a.get_annot_view() + ' - Text Plane 41 LH',
-                       '47': a.get_annot_view() + ' - Text Plane 47 LH'},
-                'RH': {'constant': a.get_annot_view() + ' - Text Plane RH',
-                       '41': a.get_annot_view() + ' - Text Plane 41 RH',
-                       '47': a.get_annot_view() + ' - Text Plane 47 RH'},
-                'CTR': {'constant': a.get_annot_view(),
+        if self.irm_type == 1:
+            return {'LH': {'constant': a.get_annot_view() + ' - Text Plane LH',
+                           '41': a.get_annot_view() + ' - Text Plane 41 LH',
+                           '47': a.get_annot_view() + ' - Text Plane 47 LH'},
+                    'RH': {'constant': a.get_annot_view() + ' - Text Plane RH',
+                           '41': a.get_annot_view() + ' - Text Plane 41 RH',
+                           '47': a.get_annot_view() + ' - Text Plane 47 RH'},
+                    'capture': a.get_capture_name()}
+
+        return {'CTR': {'constant': a.get_annot_view(),
                         '41': a.get_annot_view(),
                         '47': a.get_annot_view()},
                 'capture': a.get_capture_name()}
 
     def get_view_number(self, annot_name, side, section):
 
-        dict1 = self.get_annot_dict()
         try:
-            if self.irm_type == 1:
-                result = Annotation.views.index(dict1[annot_name][side][section])
-            elif self.irm_type == 2:
-                result = Annotation.views_ctr.index(dict1[annot_name][side][section])
+            dict1 = self.get_annot_dict()
+            view_dict = Annotation.views
+            if self.irm_type == 2:
+                view_dict = Annotation.views_ctr
+            view_name = dict1[annot_name][side][section]
+            if isinstance(view_name, list):
+                result = []
+                for view in view_name:
+                    result.append(view_dict.index(view))
+                return result
+            return view_dict.index(view_name)
         except:
             return None
-        return result
 
     def get_view_name(self, annot_name, side, section):
 
@@ -255,6 +265,6 @@ if __name__ == "__main__":
     pprint(look_at_dict)
     # b = Annotation('FL1', 'Inboard Facing Out - Lower Support', 'FL1 and FL2 Typical')
     # print b.get_annot_name()
-    print annotations.get_view_number('sta_RH', 'CTR', 'constant')
-    print annotations.get_view_name('sta_RH', 'CTR', 'constant')
-    print annotations.get_capture('sta_RH')
+    print annotations.get_view_number('sta', 'CTR', 'constant')
+    print annotations.get_view_name('light_marker', 'CTR', 'constant')
+    print annotations.get_capture('sta')

@@ -28,10 +28,10 @@ class Ref(object):
 
  #  @staticmethod
 
-    def __init__(self, customer, sta, side, plug, bin_order, irm_ln, all_irm_parts, path=work_path_lib,
+    def __init__(self, customer, sta, side, plug, bin_order, irm_ln, all_irm_parts,
                  irm_type=1, name=None, component_name=None):
         self.plug = plug
-        self.path = path
+        self.path = Ref.work_path_lib
         self.customer = customer
         self.sta_to_find = sta
         self.side_to_find = side
@@ -41,21 +41,6 @@ class Ref(object):
         self.irm_ln = irm_ln
         self.all_irm_parts = all_irm_parts
         self.irm_type = irm_type
-
-    def set_plug(self, new_plug):
-        self.plug = new_plug
-
-    def set_path(self, new_path):
-        self.path = new_path
-
-    def set_customer(self, new_customer):
-        self.path = new_customer
-
-    def set_sta_to_find(self, new_sta_to_find):
-        self.sta_to_find = new_sta_to_find
-
-    def set_side_to_find(self, new_side_to_find):
-        self.side_to_find = new_side_to_find
 
     def set_name(self, new_name):
         self.component_name = new_name
@@ -2866,13 +2851,13 @@ if __name__ == "__main__":
     #ecs1 = Ref('787_9_KAL_ZB656', '0609', 'LH', 240, 2, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
     #ecs2 = Ref('787_9_KAL_ZB656', '0609+48', 'LH', 240, 3, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
     #ecs3 = Ref('787_9_KAL_ZB656', '0393', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1')
-    ecs3 = Ref('787_9_NEO_ZB874', '0489', 'LH', 240, 2, 2, ['1X5005-210000-0##ALT68'], name='Product1.1', irm_type=2)
-    ecs4 = Ref('787_9_NEO_ZB874', '0513', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1', irm_type=2)
+    ecs3 = Ref('787_9_NEO_ZB874', '0561', 'LH', 240, 1, 4, ['1X5005-210000-0##ALT68'], name='Product1.1', irm_type=1)
+    #ecs4 = Ref('787_9_NEO_ZB874', '0513', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1', irm_type=1)
     #ecs.build()
     #ecs1.build()
     #ecs2.build()
     ecs3.build()
-    ecs4.build()
+    #ecs4.build()
     #ecs.remove_component()
     #ecs1.remove_component()
     #ecs2.remove_component()

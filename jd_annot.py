@@ -6,7 +6,7 @@ from matrix import axis_coord, mod
 from pprint import pprint
 
 
-def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id, side, irm_type=1):
+def add_jd_annotation(carm_pn, sta_value, jd_number1, side, irm_type):
     """Adds JOINT DEFINITION XX annotation"""
     
     catia = win32com.client.Dispatch('catia.application')
@@ -71,8 +71,7 @@ def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id, side, irm_typ
         userSurface1 = userSurfaces1.Generate(reference1)
         coordinates = json_lookup_point(carm_pn, points.Item(1).Name)
         coord_new = mod(axis_coord(coordinates,
-                                   annotations.get_view_name('JD ' + jd_number_formatted,
-                                                             side, sec)),
+                                   annotations.get_view_name('JD ' + jd_number_formatted, side, sec), irm_type),
                                                              [(2.5 * 25.4),
                                                               (2.5 * 25.4)])
 
@@ -81,10 +80,8 @@ def add_jd_annotation(carm_pn, sta_value, jd_number1, instance_id, side, irm_typ
             userSurface1.AddReference(reference2)
 
         annotationFactory1 = ann_set1.AnnotationFactory
-        annotation1 = annotationFactory1.CreateEvoluateText(userSurface1, coord_new[0],
-                                                                          coord_new[1],
-                                                                          coord_new[2],
-                                                                           True)
+        annotation1 = annotationFactory1.CreateEvoluateText(userSurface1, coord_new[0], coord_new[1], coord_new[2],
+                                                            True)
         KBE.InitializeAnntFactory(carm_doc)
         capture_dict = set_capture_dict(carm_pn)
         #annotation1 = KBE.CreateTextWithLeader(points.Item(1), view_to_activate, annot_text, 137, 68, 20)
@@ -164,7 +161,7 @@ def access_captures(instance_id, number):
     capture1.DisplayCapture()
 
 
-def add_annotation(carm_pn, sta_value, instance_id, side, irm_type=1):
+def add_annotation(carm_pn, sta_value, side, irm_type):
     """Adds annotation"""
     
     catia = win32com.client.Dispatch('catia.application')
@@ -246,9 +243,15 @@ def add_annotation(carm_pn, sta_value, instance_id, side, irm_type=1):
                 added_annots.append(annot_text)
         
         annotations = AnnotationFactory(irm_type)
+        coordinates = json_lookup_flagnote(carm_part.name, point_name)
         view_name = annotations.get_view_number(annot_text_check, side, sec)
         if view_name is None:
             continue
+        if isinstance(view_name, list) and coordinates[1] < 0:
+            view_name = view_name[0]
+        elif isinstance(view_name, list) and coordinates[1] > 0:
+            view_name = view_name[1]
+        print view_name
         carm_doc = documents.Item(carm_pn + ".CATPart")
         carm_part = carm_doc.Part
         KBE = carm_part.GetCustomerFactory("BOEAnntFactory")
@@ -278,11 +281,8 @@ def add_annotation(carm_pn, sta_value, instance_id, side, irm_type=1):
             offset = [0, (25.0 * 25.4)]
         else:
             offset = [(2.5 * 25.4), (2.5 * 25.4)]
-        coord_new = mod(axis_coord(coordinates,
-                                   annotations.get_view_name(annot_text_check,
-                                                             side, sec)),
-                                                             offset)
-
+        coord_new = mod(axis_coord(coordinates, annotations.get_view_name(annot_text_check, side, sec), irm_type),
+                        offset)
         annotationFactory1 = ann_set1.AnnotationFactory
         KBE.InitializeAnntFactory(carm_doc)
         
@@ -354,11 +354,9 @@ def add_annotation(carm_pn, sta_value, instance_id, side, irm_type=1):
     selection1.Clear()
     carm_part.Update()
             
-            
 
 if __name__ == "__main__":
 
     input_config = [['1623', 42], ['1665', 24]]
     add_jd_annotation('CA836Z1191-46_2017_01_17_19_43_34', input_config[0][0], 30, 'GLS_STA0561-0657_OB_LH_CAI')
     #add_annotation('CA836Z1191-41', input_config, 'GLS_STA1618-1732_OB_LH_CAI')
-    

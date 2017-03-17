@@ -150,12 +150,15 @@ def json_lookup_flagnote(carm_pn, point_name):
             return None
 
 
-def json_lookup_axis(view):
+def json_lookup_axis(view, irm_type):
     """
     returns coord of an axis
     """
     axis_name = view.replace('Text Plane', 'Axis System')
-    with open('data\\axis.txt') as f:
+    source = 'axis.txt'
+    if irm_type == 2:
+        source = 'axis_ctr.txt'
+    with open('data\\' + source) as f:
         data = json.load(f)
         try:
             matrix_str = data[axis_name]
@@ -169,11 +172,14 @@ def json_lookup_axis(view):
             return None
 
 
-def json_lookup_camera(camera_name):
+def json_lookup_camera(camera_name, side):
     """
     returns coord of an axis
     """
-    with open('data\\cameras.txt') as f:
+    source = 'cameras.txt'
+    if side == 'CTR':
+        source = 'cameras_ctr.txt'
+    with open('data\\' + source) as f:
         data = json.load(f)
         try:
             matrix_str = data[camera_name]
@@ -217,8 +223,8 @@ if __name__ == "__main__":
     print json_lookup_fl('IC830Z3000-1.3.2.11')
     print json_lookup_fl_keys('IC830Z3000-1.3.2.11')
     #print json_lookup_origin('1631-10_STA0561-0657_OB-OMF_LH_CARM')
-    #print json_lookup_axis('Inboard Facing Out - Top Support - Text Plane 41 RH')
-    #print json_lookup_camera("JD01 Ceiling Light Typical")
+    print json_lookup_axis("Outboard LH Facing In - Upper Support - Axis System", 2)
+    print json_lookup_camera("Wire Harness Tie", 'CTR')
     #j = json_lookup_stonesoup()
     #for key in j:
     #    if 'Layout' in key:

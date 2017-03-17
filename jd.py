@@ -6,11 +6,18 @@ import win32com.client
 
 class JD(object):
 
+    catia = win32com.client.Dispatch('catia.application')
+    productDocument1 = catia.ActiveDocument
+    Product = productDocument1.Product
+    collection = Product.Products
+
     def __init__(self, pn, irm_name, part_name, plug_value=240.0):
         self.pn = pn
         self.irm_name = irm_name
         self.part_name = part_name
         self.plug_value = plug_value
+        self.product = JD.collection.Item(self.irm_name)
+        self.collection1 = self.product.Products
 
     def __str__(self):
         return '({0.pn!s}, {0.irm_type!s})'.format(self)
@@ -46,6 +53,12 @@ class JD(object):
         re_suddle_clamp = re.compile('^(IC830Z3000-1.+jd31)$')
         re_ringpost_rail = re.compile('^(IC830Z3000-1.+jd28)$')
         re_bushing = re.compile('^(IC830Z3000-1[^jd]*.[^rp]$)')
+        re_mounting_bracket = re.compile('1X5005-411100-\d+')
+        re_inboard_ceiling_lights = re.compile('1J5009-211\d{3}-\d##ALT\d+')
+        re_inboard_latches = re.compile('C519503-525$')
+        re_nofar_light_mounting_bracket = re.compile('1X5005-431100-1$')
+        re_nofar_light_mounting_bracket2 = re.compile('1X5005-431200-1$')
+        re_power_supply_mounting_bracket = re.compile('832Z7450-1$')
 
         jd_dict_new = {re_ceiling_light: '01',
                        re_noise_seal: '02',
@@ -68,7 +81,13 @@ class JD(object):
                        re_nofar_light: '26',
                        re_power_supply: '27',
                        re_ringpost_rail: '28',
-                       re_suddle_clamp: '31'}
+                       re_suddle_clamp: '31',
+                       re_mounting_bracket: '40',
+                       re_inboard_ceiling_lights: '41',
+                       re_inboard_latches: '42',
+                       re_nofar_light_mounting_bracket: '45',
+                       re_nofar_light_mounting_bracket2: '46',
+                       re_power_supply_mounting_bracket: '47'}
 
         re_list = jd_dict_new.keys()
 
@@ -96,19 +115,14 @@ class JD(object):
 
         return None
 
+
     def get_slc_origins(self):
-    
-        catia = win32com.client.Dispatch('catia.application')
-        productDocument1 = catia.ActiveDocument
-        Product = productDocument1.Product
-        collection = Product.Products
-        product = collection.Item(self.irm_name)
-        collection1 = product.Products
+
         x_slc = []
-        for n in xrange(1, collection1.Count+1):
-            part_pn = collection1.Item(n).PartNumber
+        for n in xrange(1, self.collection1.Count+1):
+            part_pn = self.collection1.Item(n).PartNumber
             if '222348' in part_pn or '221348' in part_pn:
-                x_coord = json_lookup_origin(collection1.Item(n).Name)[-3]
+                x_coord = json_lookup_origin(self.collection1.Item(n).Name)[-3]
                 x_slc.append(x_coord)
             else:
                 continue
@@ -119,19 +133,13 @@ class JD(object):
 
     def get_riser_origins(self, detail='raisers'):
         
-        catia = win32com.client.Dispatch('catia.application')
-        productDocument1 = catia.ActiveDocument
-        Product = productDocument1.Product
-        collection = Product.Products
-        product = collection.Item(self.irm_name)
-        collection1 = product.Products
         x_riser = []
-        d_type = {'raisers':'C519503-515', 'sidewall':'1X5005-420100-1'}
+        d_type = {'raisers': 'C519503-515', 'sidewall': '1X5005-420100-1'}
         pn_to_find = d_type[detail]
-        for n in xrange(1, collection1.Count+1):
-            part_pn = collection1.Item(n).PartNumber
+        for n in xrange(1, self.collection1.Count+1):
+            part_pn = self.collection1.Item(n).PartNumber
             if pn_to_find in part_pn:
-                x_coord = json_lookup_origin(collection1.Item(n).Name)[-3]
+                x_coord = json_lookup_origin(self.collection1.Item(n).Name)[-3]
                 x_riser.append(x_coord)
             else:
                 continue
@@ -209,17 +217,17 @@ class JD(object):
         return False
            
 #    def if_slc(self):
-if __name__ == "__main__":
+#if __name__ == "__main__":
 
-    irm_name = 'GLS_STA0561-0657_OB_LH_CAI'
-    catia = win32com.client.Dispatch('catia.application')
-    productDocument1 = catia.ActiveDocument
-    Product = productDocument1.Product
-    collection = Product.Products
-    product = collection.Item(irm_name)
-    collection1 = product.Products
-    for n in xrange(1, collection1.Count+1):
-        part_pn = collection1.Item(n).PartNumber
-        part_name = collection1.Item(n).Name
-        j1 = JD(part_pn, irm_name, part_name)
-        print str(j1.get_part_name()) + ' : ' + str(j1.get_name())
+    #irm_name = 'GLS_STA0561-0657_OB_LH_CAI'
+    #catia = win32com.client.Dispatch('catia.application')
+    #productDocument1 = catia.ActiveDocument
+    #Product = productDocument1.Product
+    #collection = Product.Products
+    #product = collection.Item(irm_name)
+    #collection1 = product.Products
+    #for n in xrange(1, collection1.Count+1):
+    #    part_pn = collection1.Item(n).PartNumber
+    #    part_name = collection1.Item(n).Name
+    #    j1 = JD(part_pn, irm_name, part_name)
+    #    print str(j1.get_part_name()) + ' : ' + str(j1.get_name())
