@@ -1,0 +1,7 @@
+{
+  "Outboard LH Facing In - Upper Support - Axis System": "0, -669.186, 7486.8453, 1, 0, 0, 0, 0.9799, 0.1994, 0, -0.1994, 0.9799",
+  "Outboard RH Facing In - Upper Support - Axis System": "0, 669.186, 7486.8453, -1, 0, 0, 0, -0.9799, 0.1994, 0, 0.1994, 0.9799",
+  "FWD Facing AFT - Axis System": "0, 0, 7402.576, 0, -1, 0, 0, 0, 1, -1, 0, 0",
+  "JD40 - Section View - Axis System": "0, -597.5425, 7526.5046, 1, 0.0012, 0.0002, -0.0012, 0.9802, 0.1982, 0, -0.1982, 0.9802",
+  "Local Axis System": "0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1"
+}
