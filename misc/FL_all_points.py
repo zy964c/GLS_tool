@@ -18,13 +18,19 @@ if __name__ == "__main__":
         for selected in xrange(1, selection1.Count2 + 1):
             point = selection1.Item2(selected).Value
             point_coord = [point.X.Value, point.Y.Value, point.Z.Value]
-            point_dict[str(point.Name)] = point_coord
+            point_name = point.Name
+            n = 1
+            while point_dict.get(str(point_name)) is not None:
+                point_location = point_name.find('.')
+                if point_location != -1:
+                    point_name = point_name[:point_location]
+                point_name += ('.' + str(n))
+                n += 1
+            point_dict[str(point_name)] = point_coord
             dict_paste = point_dict.copy()
             gls_parts_dict[str(collector.Item(part).Name[:-2])] = dict_paste
-            #print gls_parts_dict
-    
 
-    with open('Y:\\My Documents\\Python Scripts\\flagnote.json', 'w') as f:
+    with open('flagnote.json', 'w') as f:
         json.dump(gls_parts_dict, f, sort_keys=True, indent=4, separators=(',', ': '))
         
     #pprint(data)

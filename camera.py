@@ -1,6 +1,6 @@
 import win32com.client
 # from functions import inch_to_mm
-# from pprint import pprint
+from pprint import pprint
 from json_lookup import json_lookup_camera
 from add_component import Ref
 from matrix import rotate_vector
@@ -28,7 +28,10 @@ def update_camera(cam_name, omf):
         coord_origin = json_lookup_camera(cam_name, omf.side_to_find)[cam_coord]
         sight_direction = json_lookup_camera(cam_name, omf.side_to_find)[sight_dir]
         up_direction = json_lookup_camera(cam_name, omf.side_to_find)[up_dir]
-        coord_origin_global = omf.get_position_camera(coord_origin)
+        if omf.irm_type == 1:
+            coord_origin_global = omf.get_position_camera(coord_origin)
+        else:
+            coord_origin_global = omf.get_position_camera_center(coord_origin)
         return coord_origin_global, sight_direction, up_direction
 
 
@@ -70,8 +73,9 @@ def cameras(pn, omf):
 
 if __name__ == "__main__":
 
-        #pprint(map_camera_names('seed_fairing_lh'))
-        omf1 = Ref('787_9_JAL_ZB424', '1239', 'LH', 240, 0, [])
-        print update_camera("JD01 Ceiling Light Typical", omf1)
-        cameras('CA836Z1661-2', 'LH', omf1)
+        #pprint(map_camera_names('seed_ctr'))
+        ecs = Ref('787_9_GUN_ZB910', '1713', 'CTR', 240, 1, 3, ['1X5005-210000-0##ALT68'], 48, name='Product1.1',
+                  irm_type=2)
+        print update_camera("Reference Geometry", ecs)
+        #cameras('CA836Z1661-2', 'LH', ecs)
 

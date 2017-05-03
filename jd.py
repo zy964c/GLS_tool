@@ -11,11 +11,12 @@ class JD(object):
     Product = productDocument1.Product
     collection = Product.Products
 
-    def __init__(self, pn, irm_name, part_name, plug_value=240.0):
+    def __init__(self, pn, irm_name, part_name, plug_value, bin_type):
         self.pn = pn
         self.irm_name = irm_name
         self.part_name = part_name
         self.plug_value = plug_value
+        self.bin_type = bin_type
         self.product = JD.collection.Item(self.irm_name)
         self.collection1 = self.product.Products
 
@@ -55,7 +56,7 @@ class JD(object):
         re_bushing = re.compile('^(IC830Z3000-1[^jd]*.[^rp]$)')
         re_mounting_bracket = re.compile('1X5005-411100-\d+')
         re_inboard_ceiling_lights = re.compile('1J5009-211\d{3}-\d##ALT\d+')
-        re_inboard_latches = re.compile('C519503-525$')
+        #re_inboard_latches = re.compile('C519503-525$')
         re_nofar_light_mounting_bracket = re.compile('1X5005-431100-1$')
         re_nofar_light_mounting_bracket2 = re.compile('1X5005-431200-1$')
         re_power_supply_mounting_bracket = re.compile('832Z7450-1$')
@@ -84,7 +85,7 @@ class JD(object):
                        re_suddle_clamp: '31',
                        re_mounting_bracket: '40',
                        re_inboard_ceiling_lights: '41',
-                       re_inboard_latches: '42',
+                       #re_inboard_latches: '42',
                        re_nofar_light_mounting_bracket: '45',
                        re_nofar_light_mounting_bracket2: '46',
                        re_power_supply_mounting_bracket: '47'}
@@ -95,11 +96,13 @@ class JD(object):
             m = r.match(self.pn)
             if m is not None:
                 jd_set = jd_dict_new[r]
-                if jd_set == '19':
+                if jd_set == '19' and self.bin_type == 1:
                     if self.check_slc_light():
                         jd_set = '25'
                     elif self.check_riser():
                         jd_set = '20'
+                elif jd_set == '19' and self.bin_type == 2:
+                    jd_set = '42'
                 elif jd_set == '04':
                     if self.check_disconnect_brkt(self.plug_value):
                         jd_set = '29'

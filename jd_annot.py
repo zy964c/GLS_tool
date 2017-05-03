@@ -4,6 +4,7 @@ from views import AnnotationFactory
 import re
 from matrix import axis_coord, mod
 from pprint import pprint
+from functions import mm_to_inch
 
 
 def add_jd_annotation(carm_pn, sta_value, jd_number1, side, irm_type):
@@ -34,14 +35,28 @@ def add_jd_annotation(carm_pn, sta_value, jd_number1, side, irm_type):
         carm_part = carm_doc.Part
         KBE = carm_part.GetCustomerFactory("BOEAnntFactory")
         annotations = AnnotationFactory(irm_type)
-        view_name = annotations.get_view_number('JD ' + jd_number_formatted,
-                                                side, sec)
+        print jd_number_formatted, side, sec
+        view_number = annotations.get_view_number('JD ' + jd_number_formatted,
+                                                  side, sec)
+        if view_number is None:
+            continue
+        if isinstance(view_number, list) and coordinates[1] < 0:
+            view_number = view_number[0]
+        elif isinstance(view_number, list) and coordinates[1] > 0:
+            view_number = view_number[1]
+        print view_number
+        view_name = annotations.get_view_name('JD ' + jd_number_formatted, side, sec)
         if view_name is None:
             continue
+        if isinstance(view_name, list) and coordinates[1] < 0:
+            view_name = view_name[0]
+        elif isinstance(view_name, list) and coordinates[1] > 0:
+            view_name = view_name[1]
+        print view_name
         ann_sets = carm_part.AnnotationSets
         ann_set1 = ann_sets.Item(1)
         TPSViews = ann_set1.TPSViews
-        view_to_activate = TPSViews.Item(view_name + 1)
+        view_to_activate = TPSViews.Item(view_number + 1)
         ann_set1.ActiveView = view_to_activate
         userSurfaces1 = carm_part.UserSurfaces
         geosets = carm_part.HybridBodies
@@ -70,10 +85,11 @@ def add_jd_annotation(carm_pn, sta_value, jd_number1, side, irm_type):
             continue
         userSurface1 = userSurfaces1.Generate(reference1)
         coordinates = json_lookup_point(carm_pn, points.Item(1).Name)
-        coord_new = mod(axis_coord(coordinates,
-                                   annotations.get_view_name('JD ' + jd_number_formatted, side, sec), irm_type),
-                                                             [(2.5 * 25.4),
-                                                              (2.5 * 25.4)])
+        #coord_new = mod(axis_coord(coordinates,
+        #                           annotations.get_view_name('JD ' + jd_number_formatted, side, sec), irm_type),
+        #                                                     [(2.5 * 25.4),
+        #                                                      (2.5 * 25.4)])
+        coord_new = mod(axis_coord(coordinates, view_name, irm_type), [(2.5 * 25.4), (2.5 * 25.4)])
 
         for point in xrange(2, points.Count + 1 - fidv):
             reference2 = carm_part.CreateReferenceFromObject(points.Item(point))
@@ -113,7 +129,7 @@ def set_capture_dict(carm_pn):
     Captures1 = ann_set1.Captures
     for i in xrange(1, Captures1.Count+1):
         capture_dict[Captures1.Item(i).Name] = i
-    #pprint(capture_dict)
+    pprint(capture_dict)
     return capture_dict
 
 
@@ -170,6 +186,7 @@ def add_annotation(carm_pn, sta_value, side, irm_type):
     documents = catia.Documents
     #side = instance_id[-6: -4]
     bin_number = 0
+    ctr_bin_number = 0
     carm_doc = documents.Item(carm_pn + ".CATPart")
     carm_part = carm_doc.Part
     hybrid_bodies = carm_part.HybridBodies
@@ -209,11 +226,18 @@ def add_annotation(carm_pn, sta_value, side, irm_type):
     added_fl = ['FL28', 'FL29', 'FL38']
     for point in xrange(1, points.Count+1):
         point_name = points.Item(point).Name
-
+        coordinates = json_lookup_flagnote(carm_part.name, point_name)
         if 'sta' in point_name:
             annot_text_check = 'sta'
-            annot_text = 'STA ' + sta_value[bin_number][0] + '\n   ' + side[0] + 'BL 61\n   WL 285\n    REF'
-            bin_number += 1
+            if irm_type == 1:
+                annot_text = 'STA ' + sta_value[bin_number][0] + '\n   ' + side[0] + 'BL 61\n   WL 285\n    REF'
+                bin_number += 1
+            elif irm_type == 2:
+                annot_text = 'STA ' + sta_value[bin_number][0] + '\n   ' + side[0] + 'BL ' + str(abs(int(mm_to_inch(coordinates[1]))))\
+                             + '\n   WL 294\n    REF'
+                ctr_bin_number += 1
+                if ctr_bin_number % 2 == 0:
+                    bin_number += 1
         elif '804Z3000' in point_name:
             for r in re_list:
                 m = r.match(point_name)
@@ -243,8 +267,16 @@ def add_annotation(carm_pn, sta_value, side, irm_type):
                 added_annots.append(annot_text)
         
         annotations = AnnotationFactory(irm_type)
-        coordinates = json_lookup_flagnote(carm_part.name, point_name)
-        view_name = annotations.get_view_number(annot_text_check, side, sec)
+
+        view_number = annotations.get_view_number(annot_text_check, side, sec)
+        if view_number is None:
+            continue
+        if isinstance(view_number, list) and coordinates[1] < 0:
+            view_number = view_number[0]
+        elif isinstance(view_number, list) and coordinates[1] > 0:
+            view_number = view_number[1]
+        print view_number
+        view_name = annotations.get_view_name(annot_text_check, side, sec)
         if view_name is None:
             continue
         if isinstance(view_name, list) and coordinates[1] < 0:
@@ -259,7 +291,7 @@ def add_annotation(carm_pn, sta_value, side, irm_type):
         ann_sets = carm_part.AnnotationSets
         ann_set1 = ann_sets.Item(1)
         TPSViews = ann_set1.TPSViews
-        view_to_activate = TPSViews.Item(view_name + 1)
+        view_to_activate = TPSViews.Item(view_number + 1)
         ann_set1.ActiveView = view_to_activate
         
         wb = str(catia.GetWorkbenchId())
@@ -278,11 +310,15 @@ def add_annotation(carm_pn, sta_value, side, irm_type):
         if 'marker' in annot_text_check:
             offset = [(2.5 * 25.4), (3.5 * 25.4)]
         elif 'sta' in annot_text_check:
-            offset = [0, (25.0 * 25.4)]
+            if irm_type == 1:
+                offset = [0, (25.0 * 25.4)]
+            elif irm_type == 2:
+                offset = [0, -1*(12.0 * 25.4)]
         else:
             offset = [(2.5 * 25.4), (2.5 * 25.4)]
-        coord_new = mod(axis_coord(coordinates, annotations.get_view_name(annot_text_check, side, sec), irm_type),
-                        offset)
+        #coord_new = mod(axis_coord(coordinates, annotations.get_view_name(annot_text_check, side, sec), irm_type),
+        #                offset)
+        coord_new = mod(axis_coord(coordinates, view_name, irm_type), offset)
         annotationFactory1 = ann_set1.AnnotationFactory
         KBE.InitializeAnntFactory(carm_doc)
         
@@ -341,7 +377,10 @@ def add_annotation(carm_pn, sta_value, side, irm_type):
     parameters1 = carm_part.Parameters
     for param in xrange(1, 41):
         fl_added = False
-        fl_param = parameters1.Item('Annotation Notes:\\FL' + str(param))
+        try:
+            fl_param = parameters1.Item('Annotation Notes:\\FL' + str(param))
+        except:
+            continue
         for s in added_fl:
             if 'FL' + str(param) in s:
                 fl_added = True
@@ -350,13 +389,14 @@ def add_annotation(carm_pn, sta_value, side, irm_type):
             selection1.Add(fl_param)
         else:
             continue
-    selection1.Delete()
-    selection1.Clear()
+    if selection1.Count2 > 0:
+        selection1.Delete()
+        selection1.Clear()
     carm_part.Update()
             
 
 if __name__ == "__main__":
 
-    input_config = [['1623', 42], ['1665', 24]]
-    add_jd_annotation('CA836Z1191-46_2017_01_17_19_43_34', input_config[0][0], 30, 'GLS_STA0561-0657_OB_LH_CAI')
+    input_config = [['1473', 48], ['1521', 48], ['1569', 48]]
+    add_jd_annotation('CA836Z1371-1_2017_03_29_14_08_25', input_config[0][0], 42, 'CTR', 2)
     #add_annotation('CA836Z1191-41', input_config, 'GLS_STA1618-1732_OB_LH_CAI')

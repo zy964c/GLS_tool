@@ -23,15 +23,15 @@ if __name__ == "__main__":
             dict_paste = point_dict.copy()
             gls_parts_dict[str(collector.Item(part).Name[:-2])] = dict_paste
 
-    with open(r'\\mow.boeing.ru\dfs\Home1\zy964c\My Documents\Python Scripts\lights.json', 'w') as f:
+    with open('lights_centers.json', 'w') as f:
         json.dump(gls_parts_dict, f, sort_keys=True, indent=4, separators=(',', ': '))
         
     #pprint(data)
 
 # for checking------------------------------------------------------------------------------
-    point1 = gls_parts_dict['1J5009-221142-0##ALT3']['Point.93']
+    #point1 = gls_parts_dict['1J5009-221142-0##ALT3']['Point.93']
     #print point1
-    points = gls_parts_dict['1J5009-221142-0##ALT3']
+    #points = gls_parts_dict['1J5009-221142-0##ALT3']
     #for key in points:
         #print points[key]
 # ------------------------------------------------------------------------------------------

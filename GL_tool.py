@@ -23,6 +23,7 @@ from subprocess import check_call
 
 ref_objects = []
 
+
 def return_part(prdct_id, part_id):
     """
     find detail in tree
@@ -47,7 +48,7 @@ def part_design(geom_elem):
     selection1.Clear()
 
 
-def create_point(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_value):
+def create_point(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_value, bin_type):
     """
     create point and copy it
     :param plug_value:
@@ -60,7 +61,7 @@ def create_point(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_va
                 partDocument1 = documents.Item(i)
         current_part = partDocument1.Part
         HybridShapeFactory1 = current_part.HybridShapeFactory
-        hybridBody2 = jd_set(carm_name2, instance_id1, part_name1, part_pn, plug_value)
+        hybridBody2 = jd_set(carm_name2, instance_id1, part_name1, part_pn, plug_value, bin_type)
         make_axis(part_name1, carm_pn)
         axisSystems1 = current_part.AxisSystems
         axis = axisSystems1.Item(axisSystems1.Count)
@@ -96,6 +97,7 @@ def create_point_fl(part_name1, carm_pn, part_pn, minor):
     """
     create point and copy it
     """
+    print part_name1, carm_pn, part_pn, minor
 
     points_js = json_lookup_fl(part_pn)
     keys_js = json_lookup_fl_keys(part_pn)
@@ -174,7 +176,7 @@ def create_point_sta(carm_pn, omf1):
         current_part.Update()
 
 
-def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_value):
+def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn, plug_value, bin_type):
 
     points_js = json_lookup_components(part_pn)
     if points_js is not None:
@@ -183,7 +185,7 @@ def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn, p
                 partDocument1 = documents.Item(i)
         current_part = partDocument1.Part
         HybridShapeFactory1 = current_part.HybridShapeFactory
-        hybridBody2 = jd_set(carm_name2, instance_id1, part_name1, part_pn, plug_value)
+        hybridBody2 = jd_set(carm_name2, instance_id1, part_name1, part_pn, plug_value, bin_type)
         if hybridBody2 is not None:
             hs = hybridBody2.HybridShapes
             try:
@@ -217,7 +219,7 @@ def create_jd_vectors2(part_name1, instance_id1, carm_name2, carm_pn, part_pn, p
         return None
     
     
-def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
+def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value, bin_type):
     """
     returns jd geoset
     :param plug_value:
@@ -226,8 +228,9 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value):
     hybridBodies1 = part1.HybridBodies
     hybridBody1 = hybridBodies1.Item('Joint Definitions')
     hybridBodies2 = hybridBody1.HybridBodies
-    joint = JD(part_pn, instance_id1, part_name1, plug_value)
+    joint = JD(part_pn, instance_id1, part_name1, plug_value, bin_type)
     jd_name = joint.get_name()
+    print jd_name
     if jd_name is not None:
         hybridBody2 = hybridBodies2.Item('Joint Definition ' + jd_name)
         return hybridBody2
@@ -239,7 +242,7 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
               bin_type):
 
     global ref_objects
-    ref1 = Ref(customer, sta1, side1, plug_value, bin_order, irm_len, all_irm_parts, irm_type=bin_type,
+    ref1 = Ref(customer, sta1, side1, plug_value, bin_order, irm_len, all_irm_parts, size, irm_type=bin_type,
                name=instance_id1)
     try:
         ref1.build()
@@ -274,7 +277,11 @@ def reference(size, instance_id1, part_name1, sta1, side1, customer, plug_value,
     
     ref_part.ApplyWorkMode(2)
     selection1.Add(ref_part)
-    selection1.Search(str('(NAME = *' + str(size) + '*IN*REF* + NAME = BACS31H1A*WMA*REF*), sel'))
+    #selection1.Search(str('(NAME = *' + str(size) + '*IN*REF* + NAME = BACS31H1A*WMA*REF*), sel'))
+    #uncomment the next 2 lines when sec.41 sidewall panels are added to the library
+    #pdb.set_trace()
+    #print size, sta1, side1
+    selection1.Search(str('(NAME = *' + str(size) + '*IN*REF* + NAME = BACS31H1A*WMA*REF* + NAME = *S41_HZ_COP*' + str(sta1) + '*' + str(side1) + '*), sel'))
     try:
             selection1.Copy()
     except:
@@ -426,21 +433,22 @@ def rename_part_body(carm_pn):
         carm_part.InWorkObject = st_notes
 
 
-def scan_parts(collection_parts, instance_id, carm_name, pn, ringposts, plug_value):
+def scan_parts(collection_parts, instance_id, carm_name, pn, ringposts, plug_value, bin_type):
     
     for n in xrange(1, collection_parts.Count+1):
                 next_part = collection_parts.Item(n)
                 collection_parts2 = next_part.Products
                 if collection_parts2.Count > 0:
-                    scan_parts(collection_parts2, instance_id, carm_name, pn, ringposts, plug_value)
+                    scan_parts(collection_parts2, instance_id, carm_name, pn, ringposts, plug_value, bin_type)
                 else:
                     part_name = collection_parts.Item(n).Name
                     part_pn = collection_parts.Item(n).PartNumber
                     if part_pn in ringposts:
-                        create_point(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
-                        create_jd_vectors2(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value)
-                    create_point(part_name, instance_id, carm_name, pn, part_pn, plug_value)
-                    create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn, plug_value)
+                        create_point(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value, bin_type)
+                        create_jd_vectors2(part_name, instance_id, carm_name, pn, ringposts[part_pn], plug_value,
+                                           bin_type)
+                    create_point(part_name, instance_id, carm_name, pn, part_pn, plug_value, bin_type)
+                    create_jd_vectors2(part_name, instance_id, carm_name, pn, part_pn, plug_value, bin_type)
                     create_point_fl(part_name, pn, part_pn, plug_value)
 
 
@@ -534,7 +542,7 @@ class Application(tk.Frame):
             #         entry_upd = entry.replace('.json', '')
             #         customers.append(entry_upd)
 
-            bin_sizes = [0, 12, 18, 24, 30, 36, 42, 48, 54, 60, 72]
+            bin_sizes = [0, 12, 18, 22, 24, 30, 36, 42, 48, 54, 60, 72]
             
 #            bin_sizes2 = (0, 12, 18, 24, 30, 36, 42, 48, 54, 60, 72)
 #            
@@ -603,6 +611,7 @@ class Application(tk.Frame):
             print 'reading input'
             plug_value = self.plug.get()
             input_config = []
+            input_config_noplug = []
             work_path_folder = os.getcwd()
             bin_type = self.bin_type.get()
             size1_value = self.size1.get()
@@ -657,8 +666,14 @@ class Application(tk.Frame):
                 sys.exit(0)
             if '.json' in customer_txt:
                 customer_txt = parse_ss(customer_txt, plug_value)
+
             customer = customer_txt.replace('.txt', '')
-            
+            print customer
+            print 'bin_type = ' + str(bin_type)
+
+            sta_list_raw = [sta1_value_x, sta2_value_x, sta3_value_x, sta4_value_x,
+                            sta5_value_x, sta6_value_x]
+            sta_list_noplug = [str(int(sta)) for sta in sta_list_raw]
             sta_list = [sta1_value, sta2_value, sta3_value, sta4_value,
                         sta5_value, sta6_value]
             size_list = [size1_value, size2_value, size3_value, size4_value,
@@ -670,10 +685,17 @@ class Application(tk.Frame):
                         sta = '0' + sta
                     input_config.append([sta, size])
 
+            for sta, size in zip(sta_list_noplug, size_list):
+                if sta != '' and size != 0:
+                    if sta[0] != '0' and sta[0] != '1':
+                        sta = '0' + sta
+                    input_config_noplug.append([sta, size])
+
             if len(input_config) == 0:
                 root.destroy()
                 sys.exit(0)
             print 'input: ' + str(input_config)
+            print 'input_noplug: ' + str(input_config_noplug)
 
             if bin_type == 2:
                 side = 'CTR'
@@ -721,20 +743,28 @@ class Application(tk.Frame):
             else:
                 added_carm = add_carm_as_external_component(pn, instance_id)
             pn = added_carm[0]
-            #print pn
             #pdb.set_trace()
             change_inst_id(pn, instance_id)
             carm_name = collection1.Item(collection1.Count).Name
+
             print 'adding reference geometry of stowbins and creating STA bubbles'
             bin_order = 0
             for fairing in input_config:
                 bin_order += 1
-                reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value, bin_order,
-                          len(input_config), all_irm_parts, bin_type)
-                omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts,
-                          irm_type=bin_type, name=instance_id)
-                if self.bin_type == 1:
+                if bin_type == 1:
+                    reference(fairing[1], instance_id, carm_name, fairing[0], side, customer, plug_value, bin_order,
+                              len(input_config), all_irm_parts, bin_type)
+                    omf = Ref(customer, fairing[0], side, plug_value, bin_order, len(input_config), all_irm_parts,
+                              fairing[1], irm_type=bin_type, name=instance_id)
                     create_point_sta(pn, omf)
+                elif bin_type == 2:
+                    reference(input_config_noplug[bin_order-1][1], instance_id, carm_name,
+                              input_config_noplug[bin_order-1][0], side, customer, plug_value, bin_order,
+                              len(input_config), all_irm_parts, bin_type)
+                    omf = Ref(customer, input_config_noplug[bin_order-1][0], side, plug_value, bin_order,
+                              len(input_config), all_irm_parts, input_config_noplug[bin_order-1][1],
+                              irm_type=bin_type, name=instance_id)
+
             print 'renaming reference geometry parts'
             for prod in xrange(1, collection.Count + 1):
                 if collection.Item(prod).name == instance_id:
@@ -762,7 +792,7 @@ class Application(tk.Frame):
                          '836Z1510-22': '836Z1510-22_ringpost',
                          '836Z1510-2': '836Z1510-2_ringpost',
                          '836Z1510-3': '836Z1510-3_ringpost'}
-            scan_parts(collection1, instance_id, carm_name, pn, ringposts, plug_value)
+            scan_parts(collection1, instance_id, carm_name, pn, ringposts, plug_value, bin_type)
 
             #print ref_objects
             print 'removing reference geometry parts'
@@ -774,7 +804,11 @@ class Application(tk.Frame):
             except:
                 sys.exit("running external process GetPointCoordinates error")
             print 'creating JD annotations'
-            add_jd_annotation(pn, input_config[0][0], 31, side, bin_type)
+            if bin_type == 1:
+                jd_max = 31
+            else:
+                jd_max = 42
+            add_jd_annotation(pn, input_config[0][0], jd_max, side, bin_type)
             # access_captures(instance_id, 1)
             print 'writing coordinates of all flagnote points to the text file'
             try:

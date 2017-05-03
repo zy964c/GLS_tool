@@ -28,7 +28,7 @@ class Ref(object):
 
  #  @staticmethod
 
-    def __init__(self, customer, sta, side, plug, bin_order, irm_ln, all_irm_parts,
+    def __init__(self, customer, sta, side, plug, bin_order, irm_ln, all_irm_parts, size,
                  irm_type=1, name=None, component_name=None):
         self.plug = plug
         self.path = Ref.work_path_lib
@@ -40,6 +40,7 @@ class Ref(object):
         self.bin_order = bin_order
         self.irm_ln = irm_ln
         self.all_irm_parts = all_irm_parts
+        self.size = size
         self.irm_type = irm_type
 
     def set_name(self, new_name):
@@ -1204,7 +1205,7 @@ class Ref(object):
                     sta_current = sta_value(
                         (fake_coord_nonconstant_47 + x_coord_nonconstant),
                         plug_value)
-
+                print self.sta_to_find, self.side_to_find, sta_current, side
                 if self.sta_to_find == sta_current and self.side_to_find == side:
 
                     if stowbin is True or stowbin == 'twenty_four':
@@ -2540,7 +2541,10 @@ class Ref(object):
 
     def find_sta(self, origin, size, kind='sta', **kwargs):
 
-        size = size.replace('\n', '')
+        try:
+            size = size.replace('\n', '')
+        except AttributeError:
+            pass
         sec = 'constant'
         if '+' not in self.sta_to_find:
             if float(self.sta_to_find) < 465:
@@ -2658,16 +2662,16 @@ class Ref(object):
         
         rad = math.radians(self.angle)
 
-        
         if sec == '41' and self.side_to_find == 'RH':
             sta_offset_LH = [offset[0] * 25.4, -1 * offset[1] * 25.4, offset[2] * 25.4]
             sta_offset_RH = [offset[0] * 25.4 - math.cos(rad) * inch_to_mm(int(size)), offset[1] * 25.4 -
                             math.sin(rad) * inch_to_mm(int(size)), offset[2] * 25.4]
-        else:
+        elif self.sta_to_find != 'CTR':
             sta_offset_LH = [offset[0] * 25.4, -1 * offset[1] * 25.4, offset[2] * 25.4]
             sta_offset_RH = [offset[0] * 25.4 - math.cos(rad) * inch_to_mm(int(size)), offset[1] * 25.4 +
                             math.sin(rad) * inch_to_mm(int(size)), offset[2] * 25.4]
-
+        else:
+            sta_offset = [offset[0] * 25.4, 0, 0]
 
         sta_pos = []
         for i in xrange(3):
@@ -2675,17 +2679,19 @@ class Ref(object):
                 sta_pos.append(origin[i] + sta_offset_LH[i])
             elif 'R' in self.side_to_find:
                 sta_pos.append(origin[i] + sta_offset_RH[i])
+            else:
+                sta_pos.append(origin[i] + sta_offset[i])
         return sta_pos
 
     def build(self):
 
-        Ref.instantiate_nonconstant_components(self)
-
         if self.irm_type == 2:
-            C_Ref = CenterBin(self.name, self.sta_to_find, self.plug)
+            C_Ref = CenterBin(self.name, self.sta_to_find, self.plug, self.bin_order)
             new_name = C_Ref.parse_ss('json_cus_data\\' + self.customer + '.json')
             self.set_name(new_name)
             return new_name
+
+        Ref.instantiate_nonconstant_components(self)
 
         s1, s2, s3, s4, s5, s6 = self.converter()
 
@@ -2792,6 +2798,10 @@ class Ref(object):
 
         return self.find_sta(self.get_position(), self.get_position(target='size'), kind='camera', coord_origin=origin)
 
+    def get_position_camera_center(self, origin):
+
+        return self.find_sta([(int(self.sta_to_find) * 25.4), 0, 0], self.size, kind='camera', coord_origin=origin)
+
     def get_position(self, target='position'):
 
         s1, s2, s3, s4, s5, s6 = self.converter()
@@ -2851,7 +2861,7 @@ if __name__ == "__main__":
     #ecs1 = Ref('787_9_KAL_ZB656', '0609', 'LH', 240, 2, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
     #ecs2 = Ref('787_9_KAL_ZB656', '0609+48', 'LH', 240, 3, 4, [], name='GLS_STA0561-0657_OB_LH_CAI')
     #ecs3 = Ref('787_9_KAL_ZB656', '0393', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1')
-    ecs3 = Ref('787_9_NEO_ZB874', '0561', 'LH', 240, 1, 4, ['1X5005-210000-0##ALT68'], name='Product1.1', irm_type=1)
+    ecs3 = Ref('787_9_NEO_ZB874', '0561', 'LH', 240, 1, 4, ['1X5005-210000-0##ALT68'], name='Product3.1', irm_type=1)
     #ecs4 = Ref('787_9_NEO_ZB874', '0513', 'LH', 240, 1, 2, ['1X5005-210000-0##ALT68'], name='Product1.1', irm_type=1)
     #ecs.build()
     #ecs1.build()

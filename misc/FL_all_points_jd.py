@@ -25,7 +25,7 @@ if __name__ == "__main__":
             gls_parts_dict[str(collector.Item(part).Name[:-2])] = line_comp
             #print gls_parts_dict
 
-    with open('jd_vectors.json', 'w') as f:
+    with open('jd_vectors_centers1.json', 'w') as f:
         json.dump(gls_parts_dict, f, sort_keys=True, indent=4, separators=(',', ': '))
         
     #pprint(data)

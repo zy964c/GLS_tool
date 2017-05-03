@@ -12,12 +12,13 @@ class CenterBin(object):
     oFileSys = CATIA.FileSystem
     work_path = os.getcwd()
     work_path_lib = work_path + '\LIBRARY'
-    extention = '.CATPart'
+    extention = '.CATProduct'
 
-    def __init__(self, name, sta, plug_value, component_name=None):
+    def __init__(self, name, sta, plug_value, bin_order, component_name=None):
         self.sta = sta
         self.name = name
         self.plug_value = plug_value
+        self.bin_order = bin_order
         self.component_name = component_name
 
     def set_name(self, new_name):
@@ -35,13 +36,16 @@ class CenterBin(object):
                 bin_type = i["StowbinType"]
                 subtype = i["BinSubtype"]
                 known_subtypes = ["OFCR", "OFAR", "Horseshoe", "Hybrid", "PCP"]
-                made_subtypes = ["PCP"]
+                made_subtypes = ["PCP", "OFCR", "OFAR"]
                 if subtype in known_subtypes:
                     if subtype is not None and subtype in made_subtypes:
                         incl_subtype = subtype
                 else:
                     print "new subtype: " + str(subtype)
-                bin_name = str(size) + 'IN_Center_' + bin_type + '_' + incl_subtype
+                if incl_subtype == 'OFCR' and int(self.sta) < 465 and self.bin_order == 1:
+                    incl_subtype += '_FWD'
+                print int(self.sta), incl_subtype
+                bin_name = str(size) + 'IN_Center_' + bin_type + '_prod_' + incl_subtype
                 PartDocPath = self.work_path_lib + '\\' + bin_name
                 PartDocPath1 = PartDocPath + rand + self.extention
                 try:
@@ -82,7 +86,7 @@ class CenterBin(object):
 
 if __name__ == "__main__":
 
-    layout = os.getcwd() + '\\json_cus_data\\787_9_GUL_ZB858.json'
+    layout = os.getcwd() + '\\json_cus_data\\787_9_GUN_ZB910.json'
     k = json.load(codecs.open(layout, 'r', 'utf-8-sig'))
     content = k['Layout']['Children']
     sta = [i["STA"] for i in content if i["ObjectType"] == "Stowbin" and i["Column"] == "Center"]
@@ -97,7 +101,7 @@ if __name__ == "__main__":
             return '0'+str(j)
         return str(j)
     for l in map(add_zero, sta):
-        sbin = CenterBin(irm, l, dash_nine)
+        sbin = CenterBin(irm, l, 2, dash_nine)
         m.append(sbin)
     print len(m)
     for n in m:

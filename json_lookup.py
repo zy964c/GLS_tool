@@ -131,7 +131,6 @@ def json_lookup_fl_keys(pn):
             return None
 
 
-
 def json_lookup_flagnote(carm_pn, point_name):
     """
     returns point coordinates
