@@ -1,7 +1,7 @@
 import math
 import win32com.client
 import os
-import pdb
+#import pdb
 from functions import inch_to_mm, mm_to_inch, sta_value
 from ringposts import redirect
 from add_component_centers import CenterBin

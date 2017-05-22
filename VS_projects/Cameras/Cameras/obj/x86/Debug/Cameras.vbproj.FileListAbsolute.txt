@@ -277,3 +277,4 @@ Z:\GLS_clean\VS_projects\Cameras\Cameras\obj\x86\Debug\Cameras.exe.manifest
 Z:\GLS_clean\VS_projects\Cameras\Cameras\obj\x86\Debug\Cameras.application
 Z:\GLS_clean\VS_projects\Cameras\Cameras\bin\Debug\Cameras.pdb
 Z:\GLS_clean\VS_projects\Cameras\Cameras\bin\Debug\Cameras.xml
+Z:\GLS_clean\VS_projects\Cameras\Cameras\bin\Debug\Newtonsoft.Json.dll

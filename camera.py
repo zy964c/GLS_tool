@@ -52,7 +52,11 @@ def cameras(pn, omf):
             viewpoint = camera.Viewpoint3D
             if camera.Name == 'Wire Routing Typical':
                 continue
-            viewpoint_data = update_camera(camera.Name, omf)
+            try:
+                viewpoint_data = update_camera(camera.Name, omf)
+            except TypeError:
+                print 'no ' + camera.Name + ' camera in seed model'
+                continue
             cam_coord, sight_dir, up_dir = viewpoint_data
             sight_dir_rotated = rotate_vector(angle, sight_dir)
             up_dir_rotated = rotate_vector(angle, up_dir)

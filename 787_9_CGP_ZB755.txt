@@ -1,0 +1,12 @@
+#Sec41 LH:
+36 fairing, 36, 42
+#Sec41 RH:
+36 fairing, 36, 42
+#constant LH:
+48, 48, 48, 48, 24, 60 fairing, door, 6, 24, 36, 42, 48, 48, 48, 48, 48, 48, 48, 48, 48, 24, 36 fairing, 72 fairing, 36, 48, 48, 48, 48, 48, 48, 48
+#constant RH:
+48, 48, 48, 48, 24, 60 fairing, door, 6, 24, 36, 42, 48, 48, 48, 48, 48, 48, 48, 48, 48, 24, 36 fairing, 72 fairing, 36, 48, 48, 48, 48, 48, 48, 48
+#Sec47 LH:
+42, 24, 42 fairing
+#Sec47 RH:
+42, 24, 42 fairing

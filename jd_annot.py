@@ -345,8 +345,12 @@ def add_annotation(carm_pn, sta_value, side, irm_type):
         capture_name = annotations.get_capture(annot_text_check)
         if type(capture_name) is list:
             for capture in capture_name:
-                capture1 = Captures1.Item(capture_dict[capture])
-                KBE.AssociateAnntCapture(annotation1, capture1)
+                try:
+                    capture1 = Captures1.Item(capture_dict[capture])
+                except:
+                    print 'capture ' + capture_dict[capture] + ' was not found'
+                else:
+                    KBE.AssociateAnntCapture(annotation1, capture1)
         else:
             capture1 = Captures1.Item(capture_dict[capture_name])
             KBE.AssociateAnntCapture(annotation1, capture1)

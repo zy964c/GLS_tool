@@ -268,10 +268,22 @@ if __name__ == "__main__":
     # assert view_index('sta', 'LH', 'constant') == 1
     # assert views_dict['FL2']['capture'] == 'FL1 and FL2 Typical'
     annotations = AnnotationFactory(irm_type=2)
-    look_at_dict = annotations.get_annot_dict()
-    pprint(look_at_dict)
+    c = []
+    for key in annotations.annots_ctr:
+        captures = annotations.annots_ctr.get(key)[-1]
+        if isinstance(captures, list):
+            for i in captures:
+                c.append(i)
+        else:
+            c.append(captures)
+    with open('ctr_captures.txt', 'w') as f:
+        for j in c:
+            f.write(j + '\n')
+
+    #look_at_dict = annotations.get_annot_dict()
+    #pprint(look_at_dict)
     # b = Annotation('FL1', 'Inboard Facing Out - Lower Support', 'FL1 and FL2 Typical')
     # print b.get_annot_name()
-    print annotations.get_view_number('sta', 'CTR', 'constant')
-    print annotations.get_view_name('sta', 'CTR', 'constant')
-    print annotations.get_capture('JD 40')
+    #print annotations.get_view_number('sta', 'CTR', 'constant')
+    #print annotations.get_view_name('sta', 'CTR', 'constant')
+    print annotations.get_capture('JD 48')

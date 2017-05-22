@@ -232,8 +232,13 @@ def jd_set(carm_name1, instance_id1, part_name1, part_pn, plug_value, bin_type):
     jd_name = joint.get_name()
     print jd_name
     if jd_name is not None:
-        hybridBody2 = hybridBodies2.Item('Joint Definition ' + jd_name)
-        return hybridBody2
+        try:
+            hybridBody2 = hybridBodies2.Item('Joint Definition ' + jd_name)
+        except:
+            tkMessageBox.showinfo("GL tool info", 'Joint Definition ' + jd_name + ' geoset was not found in seed model')
+            return None
+        else:
+            return hybridBody2
     else:
         return None
 
@@ -807,7 +812,7 @@ class Application(tk.Frame):
             if bin_type == 1:
                 jd_max = 31
             else:
-                jd_max = 42
+                jd_max = 53
             add_jd_annotation(pn, input_config[0][0], jd_max, side, bin_type)
             # access_captures(instance_id, 1)
             print 'writing coordinates of all flagnote points to the text file'

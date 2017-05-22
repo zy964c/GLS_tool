@@ -60,6 +60,9 @@ class JD(object):
         re_nofar_light_mounting_bracket = re.compile('1X5005-431100-1$')
         re_nofar_light_mounting_bracket2 = re.compile('1X5005-431200-1$')
         re_power_supply_mounting_bracket = re.compile('832Z7450-1$')
+        # Have not found JD for the two lights below
+        re_ofcr_light = re.compile('1J5009-41[1,2,3]0\d{2}-\d##ALT\d+')
+        re_ofar_light = re.compile('1J5009-31[1,2]0\d{2}-\d##ALT\d+')
 
         jd_dict_new = {re_ceiling_light: '01',
                        re_noise_seal: '02',
@@ -112,6 +115,8 @@ class JD(object):
                             jd_set = '22'
                         else:
                             jd_set = '23'
+                elif jd_set == '27' and self.bin_type == 2:
+                    jd_set = '48'
                 return jd_set                      
             else:
                 continue
