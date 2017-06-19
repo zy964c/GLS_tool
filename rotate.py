@@ -34,6 +34,7 @@ def add_std_ref1(carm_pn, irm_instance_id, documents, selection1, products):
             added_part = add_carm_as_external_component(part_num + ' ' + carm_pn, irm_instance_id, inserted=part_num)
             init_pos = [0, 0, 0]
             axis_rotation = [1, 0, 0]
+            #glob_fivd = []
             for fidv in xrange(1, points.Count+1):
                 if 'FIDV' in points.Item(fidv).Name:
                     #pdb.set_trace()
@@ -43,7 +44,10 @@ def add_std_ref1(carm_pn, irm_instance_id, documents, selection1, products):
                     glob_fivd = [line_dir.GetXVal(), line_dir.GetYVal(), line_dir.GetZVal()]
 
             for point in xrange(1, points.Count+1):
-                if len(glob_fivd) == 0:
+                try:
+                    if len(glob_fivd) == 0:
+                        break
+                except UnboundLocalError:
                     break
                 if not 'FIDV' in points.Item(point).Name:
                     coordinates = json_lookup_point(carm_pn, points.Item(point).Name)
